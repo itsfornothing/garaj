@@ -1,12 +1,25 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import { randomBytes, createHash } from "node:crypto";
 import { Pool } from "pg";
 
 // Layer ownership per brief §4a: this process owns authorization, transactions,
 // payments, and background jobs. No business logic in edge functions.
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const dbUrl =
+  process.env.DATABASE_URL ?? "postgres://garaj@localhost:5433/garaj_dev";
+
+// Hosted providers (Neon/Railway) require TLS; local .pgdev does not.
+const ssl = /sslmode=(require|verify)/.test(dbUrl) ? { rejectUnauthorized: false } : false;
+
+// Single long-running process: modest pool cap, direct connection
+// (pg_try_advisory_lock in §4a cron needs a real session — no pgbouncer here).
+const pool = new Pool({ connectionString: dbUrl, max: 10, ssl });
 const app = Fastify({ logger: true });
+
+// Browser-direct calls: client components and the mobile webview hit foreign
+// origins. Reflect the request origin; no cookies exist to protect yet.
+app.register(cors, { origin: true });
 
 const hashToken = (raw: string) => createHash("sha256").update(raw).digest("hex");
 
