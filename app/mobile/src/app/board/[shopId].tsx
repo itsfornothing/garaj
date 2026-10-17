@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,11 +11,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
+  apiFetch,
   apiGet,
   chipColors,
   statusAm,
   statusOrder,
-  type EstimateDemo,
   type Order,
   type Shop,
 } from "@/lib/api";
@@ -26,8 +26,8 @@ export default function BoardScreen() {
   const [shop, setShop] = useState<Shop | null>(null);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [filter, setFilter] = useState<string>("all");
-  const [estimate, setEstimate] = useState<EstimateDemo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -41,15 +41,6 @@ export default function BoardScreen() {
           `/v1/shops/${found.id}/orders`
         );
         if (alive) setOrders(orders);
-        // Demo hook: shop may have a sent estimate awaiting customer approval.
-        try {
-          const est = await apiGet<EstimateDemo>(
-            `/v1/shops/${found.id}/estimate-demo`
-          );
-          if (alive) setEstimate(est);
-        } catch {
-          // no sent estimate — no approval link on this board
-        }
       } catch {
         if (alive) setError("መረጃውን ማምጣት አልተቻለም።");
       }
@@ -58,6 +49,30 @@ export default function BoardScreen() {
       alive = false;
     };
   }, [shopId]);
+
+  const canSend = orders?.some((o) =>
+    ["estimate_sent", "estimate_declined", "approved", "inspection"].includes(
+      o.status
+    )
+  );
+
+  async function sendEstimateLink() {
+    if (!shopId || sending) return;
+    setSending(true);
+    const { status, data } = await apiFetch<{ token?: string }>(
+      "POST",
+      `/v1/shops/${shopId}/estimate-demo/send`
+    );
+    if (status === 200 && data.token) {
+      router.push({
+        pathname: "/estimate/[shopId]",
+        params: { shopId: String(shopId), token: data.token },
+      });
+    } else {
+      setError("ግምቱን መላክ አልተቻለም — እባክዎ እንደገና ይሞክሩ።");
+    }
+    setSending(false);
+  }
 
   const list = orders?.filter(
     (o) => filter === "all" || o.status === filter
@@ -78,15 +93,21 @@ export default function BoardScreen() {
       </View>
       <Text style={styles.title}>{shop?.name ?? ""}</Text>
 
-      {estimate && (
-        <Link href={{ pathname: "/estimate/[shopId]", params: { shopId: String(shopId) } }} asChild>
-          <Pressable style={({ pressed }) => [styles.estimateBanner, pressed && styles.pressed]}>
-            <Text style={styles.estimateText}>
-              ግምት ተላከ — ደንበኛው የሚያየው ይኸውን ማገናኛ ይክፈቱ
-            </Text>
-            <Text style={styles.estimateArrow}>→</Text>
-          </Pressable>
-        </Link>
+      {canSend && (
+        <Pressable
+          onPress={sendEstimateLink}
+          disabled={sending}
+          style={({ pressed }) => [
+            styles.estimateBanner,
+            (pressed || sending) && styles.pressed,
+            sending && styles.disabled,
+          ]}
+        >
+          <Text style={styles.estimateText}>
+            {sending ? "ግምት በመላክ ላይ…" : "አዲስ ግምት አገናኝ ላክ"}
+          </Text>
+          <Text style={styles.estimateArrow}>→</Text>
+        </Pressable>
       )}
 
       <View>
@@ -236,5 +257,6 @@ const styles = StyleSheet.create({
   promised: { color: "#fbbf24", fontSize: 12, marginTop: 6 },
   empty: { color: "#52525b", textAlign: "center", marginTop: 24 },
   pressed: { opacity: 0.85 },
+  disabled: { opacity: 0.5 },
   error: { color: "#f87171", marginTop: 24, textAlign: "center" },
 });

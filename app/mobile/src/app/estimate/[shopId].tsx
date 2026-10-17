@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
@@ -10,53 +10,67 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { apiGet, formatEtb, type EstimateDemo } from "@/lib/api";
+import { apiFetch, formatEtb, type EstimateDemo } from "@/lib/api";
 
 type Decision = "approved_all" | "approved_lines" | "declined";
 
+type Gate = null | "invalid" | "expired" | "locked";
+
+type DecideResult = {
+  ok?: boolean;
+  approvedCount?: number;
+  error?: string;
+  messageAm?: string;
+  remaining?: number;
+};
+
 export default function EstimateScreen() {
   const insets = useSafeAreaInsets();
-  const { shopId } = useLocalSearchParams<{ shopId: string }>();
+  const { shopId, token } = useLocalSearchParams<{
+    shopId: string;
+    token?: string;
+  }>();
 
   const [data, setData] = useState<EstimateDemo | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [gate, setGate] = useState<Gate>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [last4, setLast4] = useState("");
-  const [decision, setDecision] = useState<Decision | null>(null);
+  const [decision, setDecision] = useState<null | { kind: Decision; lines: number }>(
+    null
+  );
   const [pinError, setPinError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (!token) {
+      setGate("invalid");
+      return;
+    }
     let alive = true;
     (async () => {
-      try {
-        const est = await apiGet<EstimateDemo>(
-          `/v1/shops/${shopId}/estimate-demo`
-        );
-        if (!alive) return;
-        setData(est);
-        setSelected(new Set(est.lines.map((l) => l.id)));
-      } catch {
-        if (alive) setLoadError("ምንም በመጠባበቅ ላይ ያለ ግምት የለም።");
+      const { status, data: res } = await apiFetch<EstimateDemo & { error?: string }>(
+        "GET",
+        `/v1/shops/${shopId}/estimate-demo?token=${encodeURIComponent(String(token))}`
+      );
+      if (!alive) return;
+      if (status === 410) {
+        setGate("expired");
+      } else if (status !== 200 || res.error) {
+        setGate("invalid");
+      } else {
+        setData(res);
+        setSelected(new Set(res.lines.map((l) => l.id)));
       }
     })();
     return () => {
       alive = false;
     };
-  }, [shopId]);
+  }, [shopId, token]);
 
   const expired = data ? new Date(data.tokenExpiresAt) < new Date() : false;
-  const selectedTotal = useMemo(
-    () =>
-      data
-        ? data.lines
-            .filter((l) => selected.has(l.id))
-            .reduce((s, l) => s + Number(l.qty) * Number(l.unitPriceEtb), 0)
-        : 0,
-    [data, selected]
-  );
 
   const toggle = (id: string) => {
-    setDecision(null);
+    if (busy) return;
     setPinError(null);
     setSelected((prev) => {
       const next = new Set(prev);
@@ -66,14 +80,37 @@ export default function EstimateScreen() {
     });
   };
 
-  const attempt = (kind: Decision) => {
-    if (!data) return;
-    if (last4 !== data.customerPhone.slice(-4)) {
-      setPinError("የስልክ ቁጥርዎ የመጨረሻዎቹ 4 አይመስሉም።");
+  const attempt = async (kind: Decision) => {
+    if (!data || busy) return;
+    setBusy(true);
+    const { status, data: res } = await apiFetch<DecideResult>(
+      "POST",
+      `/v1/estimate-links/${String(token)}/decide`,
+      {
+        decision: kind,
+        lineIds: kind === "approved_lines" ? [...selected] : undefined,
+        remainderDecision: kind === "approved_lines" ? "deferred" : undefined,
+        last4,
+      }
+    );
+    setBusy(false);
+    if (status === 200 && res.ok) {
+      setPinError(null);
+      setDecision({
+        kind,
+        lines: kind === "approved_lines" ? (res.approvedCount ?? 0) : selected.size,
+      });
       return;
     }
-    setPinError(null);
-    setDecision(kind);
+    if (status === 400 && res.error === "last4_mismatch") {
+      setPinError(
+        `${res.messageAm ?? "የስልክ ቁጥርዎ የመጨረሻዎቹ 4 አይመስሉም።"}${res.remaining !== undefined ? ` (እስከ ${res.remaining} ሙከራ)` : ""}`
+      );
+      return;
+    }
+    if (status === 429) setGate("locked");
+    else if (status === 410) setGate("expired");
+    else setGate("invalid");
   };
 
   const taxLabel =
@@ -82,6 +119,12 @@ export default function EstimateScreen() {
       : data?.taxType === "tot_10_2"
         ? "ታክስ በአገልግሎት 10%"
         : data?.taxType ?? "";
+
+  const gateCopy: Record<Exclude<Gate, null>, string> = {
+    invalid: "የማገናኛው ትክክል አይደለም። ይህ ማገናኛ አልተጠቀመም ወይም ተሠርዟል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
+    expired: "የማገናኛው ጊዜ አልቋል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
+    locked: "ብዙ ውድቅ መረጃ በመጣቡ ላይ ነው — ለ15 ደቂቃ ይህ ማገናኛ ተቀናቅቧል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
+  };
 
   return (
     <ScrollView
@@ -95,10 +138,15 @@ export default function EstimateScreen() {
         <Text style={styles.back}>← ጋራዥ</Text>
       </Pressable>
 
-      {!data && !loadError && (
+      {gate === null && !data && (
         <ActivityIndicator color="#10b981" style={{ marginTop: 40 }} />
       )}
-      {loadError && <Text style={styles.loadError}>{loadError}</Text>}
+
+      {gate !== null && (
+        <View style={styles.expiredBox}>
+          <Text style={styles.expiredText}>{gateCopy[gate]}</Text>
+        </View>
+      )}
 
       {data && (
         <>
@@ -183,7 +231,7 @@ export default function EstimateScreen() {
                     </Text>
                   </View>
                   <Text style={styles.demoNote}>
-                    መምረጥ የእይታ ማሳያ ብቻ ነው — እውነተኛ ውሳኔ አይቀረጽም።
+                    የመረጡት መስመሮች ብቻ ተፈቅደዋል — ቀሩት ለወደፊት ወስነው ይሰጣሉ።
                   </Text>
                 </View>
               </View>
@@ -197,8 +245,8 @@ export default function EstimateScreen() {
                   onChangeText={(t) => {
                     setLast4(t.replace(/\D/g, "").slice(0, 4));
                     setPinError(null);
-                    setDecision(null);
                   }}
+                  editable={!busy}
                   inputMode="numeric"
                   keyboardType="number-pad"
                   maxLength={4}
@@ -212,22 +260,22 @@ export default function EstimateScreen() {
               {decision ? (
                 <View style={styles.decisionBox}>
                   <Text style={styles.decisionText}>
-                    {decision === "declined"
+                    {decision.kind === "declined"
                       ? "ግምቱ እምቢ ተብሎ ተመዝግቧል። ጋራዥዎ በቅርቡ ተለዋጭ አማራጭ ገልጸልዎታል።"
-                      : `ፈቃድ ተመዝግቧል — ${decision === "approved_all" ? "ሙሉ ግምት" : `${selected.size} መስመሮች`}። ጋራዥዎ ሥራውን ይጀምራል።`}
+                      : `ፈቃድዎ ተመዝግቧል — ${decision.kind === "approved_all" ? "ሙሉ ግምት" : `${decision.lines} መስመሮች`}። ጋራዥዎ ሥራውን ይጀምራል፣ ሲጠናቅ ስልክ እንዲደርስዎ ይላከል።`}
                   </Text>
                   <Text style={styles.decisionNote}>
-                    (ይህ ማሳያ ብቻ ነው — እውነተኛ ውሳኔ አልተመዘገበም።)
+                    ፈቃድዎ በደህንነቱ ተጠብቆ ተመዝግቧል።
                   </Text>
                 </View>
               ) : (
                 <>
                   <Pressable
-                    disabled={selected.size === 0}
+                    disabled={selected.size === 0 || busy}
                     style={({ pressed }) => [
                       styles.approveBtn,
                       pressed && styles.pressed,
-                      selected.size === 0 && styles.disabled,
+                      (selected.size === 0 || busy) && styles.disabled,
                     ]}
                     onPress={() =>
                       attempt(
@@ -238,15 +286,19 @@ export default function EstimateScreen() {
                     }
                   >
                     <Text style={styles.approveText}>
-                      {selected.size === data.lines.length
-                        ? "ሙሉ ግምት ፈቅድ"
-                        : `${selected.size} መስመሮችን ብቻ ፈቅድ`}
+                      {busy
+                        ? "በመመዝገብ ላይ…"
+                        : selected.size === data.lines.length
+                          ? "ሙሉ ግምት ፈቅድ"
+                          : `${selected.size} መስመሮችን ብቻ ፈቅድ`}
                     </Text>
                   </Pressable>
                   <Pressable
+                    disabled={busy}
                     style={({ pressed }) => [
                       styles.declineBtn,
                       pressed && styles.pressed,
+                      busy && styles.disabled,
                     ]}
                     onPress={() => attempt("declined")}
                   >
@@ -266,7 +318,6 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#09090b" },
   content: { paddingHorizontal: 16 },
   back: { color: "#71717a", fontSize: 13 },
-  loadError: { color: "#a1a1aa", marginTop: 24, textAlign: "center" },
   titleRow: {
     flexDirection: "row",
     alignItems: "center",

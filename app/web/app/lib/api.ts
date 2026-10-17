@@ -6,6 +6,21 @@ export async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function apiJson<T>(
+  method: "GET" | "POST",
+  path: string,
+  body?: unknown
+): Promise<{ status: number; data: T }> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: { "content-type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    cache: "no-store",
+  });
+  const data = (await res.json()) as T;
+  return { status: res.status, data };
+}
+
 export type Shop = {
   id: string;
   name: string;
