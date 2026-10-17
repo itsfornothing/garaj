@@ -66,6 +66,44 @@ export default async function Home() {
         </section>
 
         <h2 className="mt-16 text-2xl font-medium tracking-tight text-zinc-900 dark:text-zinc-50">
+          እንዴት እንደሚሰራ
+        </h2>
+        <section className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              n: "1",
+              title: "ሠሌዳውን ይክፈቱ",
+              body: "ከዚህ ታች ካሉት ምሳሌ ጋራዦች ውስጥ አንዱን ይምረጡ — የተቀበሉዎት ሥራዎች በየሁኔታቸው ይታያሉ።",
+            },
+            {
+              n: "2",
+              title: "ግምት አገናኝ ላክ",
+              body: "በሠሌዳው ላይ «አዲስ ግምት አገናኝ ላክ» ይንኩ — ለደንበኛው የሚተላለፈው ስውር ማገናኛ ወዲያውኑ ይጠራል።",
+            },
+            {
+              n: "3",
+              title: "የደንበኛውን ውሳኔ ይመልከቱ",
+              body: "ደንበኛው ስልክ ቁጥሩ የመጨረሻ 4 አሃዞች ማረጋገጫ ሆኖ ፈቅዶታል — ሥራው በራሱ ወደ «ፈቃድ ተሰጠ» ያልቃል።",
+            },
+          ].map((s) => (
+            <div
+              key={s.n}
+              className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+            >
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600/10 text-sm font-semibold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
+                {s.n}
+              </span>
+              <h3 className="mt-3 font-medium text-zinc-900 dark:text-zinc-50">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                {s.body}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        <h2 className="mt-16 text-2xl font-medium tracking-tight text-zinc-900 dark:text-zinc-50">
           በንቁ አገልግሎት ላይ ያሉ ምሳሌ ጋራዦች
         </h2>
         <p className="mt-2 text-sm text-zinc-500">
