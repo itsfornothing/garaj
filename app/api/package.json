@@ -1,0 +1,23 @@
+{
+  "name": "garaj-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GarAj business backend — Fastify owns authorization, transactions, payments, background jobs (brief §4a: no business logic in edge functions)",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "fastify": "^5.6.0",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/pg": "^8.15.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
