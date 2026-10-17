@@ -5,7 +5,7 @@
   "description": "GarAj business backend — Fastify owns authorization, transactions, payments, background jobs (brief §4a: no business logic in edge functions)",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "node --env-file=.env --import tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
