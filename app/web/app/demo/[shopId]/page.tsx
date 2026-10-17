@@ -8,6 +8,7 @@ import {
   type Shop,
 } from "../../lib/api";
 import SendEstimateLink from "./SendEstimateLink";
+import IntakeTrigger from "./IntakeTrigger";
 
 export const instant = false;
 
@@ -102,6 +103,7 @@ export default async function DemoBoard({ params }: { params: Params }) {
               </span>
             </h1>
           </div>
+          <IntakeTrigger shopId={shop.id} />
           {hasEstimateFlow && <SendEstimateLink shopId={shop.id} />}
           <span className="rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-500 dark:border-zinc-700">
             {shop.taxRegime === "vat_15"
