@@ -11,16 +11,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { apiFetch, apiGet } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 
-const FUELS = [
-  { value: "petrol", label: "ነዳጅ" },
-  { value: "diesel", label: "ዲዝኤል" },
-  { value: "bev", label: "ኤሌክትሪክ" },
-  { value: "hev", label: "ሃይብሪድ" },
-  { value: "phev", label: "ሃይብሪድ (ፕላግ-ኢን)" },
-  { value: "lpg", label: "ኤልፒጂ" },
-  { value: "other", label: "ሌላ" },
-];
+const FUELS = ["petrol", "diesel", "bev", "hev", "phev", "lpg", "other"];
 
 type VehicleHit = {
   id: string;
@@ -52,6 +45,7 @@ export default function IntakeScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     let alive = true;
@@ -99,19 +93,19 @@ export default function IntakeScreen() {
     );
     setBusy(false);
     if (status === 201) {
-      setDone("ተቀብለናል ✓");
+      setDone(t("intake.done"));
       setTimeout(() => router.back(), 600);
     } else {
       setError(
         data.error === "consent_required"
-          ? "የደንበኛ ፍቃድ ማረጋገጥ አስፈላጊ ነው።"
+          ? t("intake.errConsent")
           : data.error === "phone_invalid"
-            ? "ስልክ ቁጥሩ ትክክል አይደለም።"
+            ? t("intake.errPhone")
             : data.error === "name_required"
-              ? "የደንበኛ ስም ያስፈልጋል።"
+              ? t("intake.errName")
               : data.error === "vehicle_fields_required"
-                ? "የተሽከርካሪ መረጃ ይሙሉ (ማዕከል/ሞዴል)።"
-                : "መመዝገብ አልተቻለም — እንደገና ይሞክሩ።"
+                ? t("intake.errVehicle")
+                : t("nav.error")
       );
     }
   };
@@ -130,16 +124,16 @@ export default function IntakeScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable hitSlop={12} onPress={() => router.back()}>
-          <Text style={styles.back}>← ሰሌዳ</Text>
+          <Text style={styles.back}>{t("nav.back")} {t("nav.board")}</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>አዲስ ሥራ ተቀበል</Text>
+        <Text style={styles.headerTitle}>{t("intake.title")}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
         {!selected && !isNew && (
           <>
-            <Text style={styles.label}>ሰሌዳ / ስልክ / ስም ይፈልጉ</Text>
+            <Text style={styles.label}>{t("intake.search")}</Text>
             <TextInput
               value={q}
               onChangeText={setQ}
@@ -149,11 +143,11 @@ export default function IntakeScreen() {
             />
             {hits === null && q.trim().length < 2 && (
               <Text style={styles.hint}>
-                ደንበኛ አገኘው? ያስገቡ። አዲስ ከሆነ ከታች ይመዝገቡ።
+                {t("intake.hint")}
               </Text>
             )}
             {hits?.length === 0 && q.trim().length >= 2 && (
-              <Text style={styles.hint}>አልተገኘም — አዲስ ይመዝገቡ።</Text>
+              <Text style={styles.hint}>{t("intake.none")}</Text>
             )}
             {hits?.map((v) => (
               <Pressable
@@ -177,7 +171,7 @@ export default function IntakeScreen() {
               onPress={() => setIsNew(true)}
               style={({ pressed }) => [styles.newBtn, pressed && styles.pressed]}
             >
-              <Text style={styles.newBtnText}>+ አዲስ ደንበኛ / ተሽከርካሪ</Text>
+              <Text style={styles.newBtnText}>{t("intake.newVehicle")}</Text>
             </Pressable>
           </>
         )}
@@ -195,7 +189,7 @@ export default function IntakeScreen() {
 
         {isNew && !selected && (
           <>
-            <Text style={styles.label}>ሰሌዳ ቁጥር (አማራጭ)</Text>
+            <Text style={styles.label}>{t("intake.plate")}</Text>
             <TextInput
               value={plate}
               onChangeText={setPlate}
@@ -203,7 +197,7 @@ export default function IntakeScreen() {
               placeholderTextColor="#52525b"
               style={styles.input}
             />
-            <Text style={styles.label}>ማዕከል (የትምህርት ወይም የማምረቻ ስም)</Text>
+            <Text style={styles.label}>{t("intake.make")}</Text>
             <TextInput
               value={make}
               onChangeText={setMake}
@@ -211,7 +205,7 @@ export default function IntakeScreen() {
               placeholderTextColor="#52525b"
               style={styles.input}
             />
-            <Text style={styles.label}>ሞዴል</Text>
+            <Text style={styles.label}>{t("intake.model")}</Text>
             <TextInput
               value={model}
               onChangeText={setModel}
@@ -219,28 +213,28 @@ export default function IntakeScreen() {
               placeholderTextColor="#52525b"
               style={styles.input}
             />
-            <Text style={styles.label}>የነዳጅ አይነት</Text>
+            <Text style={styles.label}>{t("intake.fuel")}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.chips}>
                 {FUELS.map((f) => (
                   <Pressable
-                    key={f.value}
-                    onPress={() => setFuel(f.value)}
-                    style={[styles.pchip, fuel === f.value && styles.pchipActive]}
+                    key={f}
+                    onPress={() => setFuel(f)}
+                    style={[styles.pchip, fuel === f && styles.pchipActive]}
                   >
                     <Text
                       style={[
                         styles.pchipText,
-                        fuel === f.value && styles.pchipTextActive,
+                        fuel === f && styles.pchipTextActive,
                       ]}
                     >
-                      {f.label}
+                      {t(`fuel.${f}`)}
                     </Text>
                   </Pressable>
                 ))}
               </View>
             </ScrollView>
-            <Text style={styles.label}>የደንበኛ ስም</Text>
+            <Text style={styles.label}>{t("intake.name")}</Text>
             <TextInput
               value={name}
               onChangeText={setName}
@@ -248,7 +242,7 @@ export default function IntakeScreen() {
               placeholderTextColor="#52525b"
               style={styles.input}
             />
-            <Text style={styles.label}>ስልክ</Text>
+            <Text style={styles.label}>{t("intake.phone")}</Text>
             <TextInput
               value={phone}
               onChangeText={(t) => setPhone(t.replace(/[^\d+]/g, "").slice(0, 13))}
@@ -262,7 +256,7 @@ export default function IntakeScreen() {
 
         {(selected || isNew) && (
           <>
-            <Text style={styles.label}>በሚስ ማሽን ቁጥር (አማራጭ)</Text>
+            <Text style={styles.label}>{t("intake.odometer")}</Text>
             <TextInput
               value={odometer}
               onChangeText={(t) => setOdometer(t.replace(/\D/g, "").slice(0, 7))}
@@ -271,7 +265,7 @@ export default function IntakeScreen() {
               placeholderTextColor="#52525b"
               style={styles.input}
             />
-            <Text style={styles.label}>ማስታወሻ (አማራጭ)</Text>
+            <Text style={styles.label}>{t("intake.notes")}</Text>
             <TextInput
               value={notes}
               onChangeText={setNotes}
@@ -288,7 +282,7 @@ export default function IntakeScreen() {
                 {consent && <Text style={styles.check}>✓</Text>}
               </View>
               <Text style={styles.consentText}>
-                ደንበኛው የመረጃ ማካፈል ፈቃድ ሰጠ (ግዴታ)
+                {t("intake.consent")}
               </Text>
             </Pressable>
           </>
@@ -308,7 +302,7 @@ export default function IntakeScreen() {
             ]}
           >
             <Text style={styles.submitText}>
-              {busy ? "በመመዝገብ ላይ…" : "ተቀበል"}
+              {busy ? t("cust.busy") : t("intake.submit")}
             </Text>
           </Pressable>
         )}

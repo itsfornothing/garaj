@@ -77,6 +77,22 @@ export const DICT: Record<string, Entry> = {
   },
   "intake.submit": { am: "ተቀበል", en: "Register" },
   "intake.done": { am: "ተቀብለናል ✓", en: "Registered ✓" },
+  "intake.errConsent": {
+    am: "የደንበኛ ፍቃድ ማረጋገጥ አስፈላጊ ነው።",
+    en: "Consent must be checked.",
+  },
+  "intake.errPhone": {
+    am: "ስልክ ቁጥሩ ትክክል አይደለም።",
+    en: "Phone number is not valid.",
+  },
+  "intake.errName": {
+    am: "የደንበኛ ስም ያስፈልጋል።",
+    en: "Customer name is required.",
+  },
+  "intake.errVehicle": {
+    am: "የተሽከርካሪ መረጃ ይሙሉ (ማዕከል/ሞዴል)።",
+    en: "Vehicle fields (make/model) are required.",
+  },
 
   "fuel.petrol": { am: "ነዳጅ", en: "Petrol" },
   "fuel.diesel": { am: "ዲዝኤል", en: "Diesel" },
