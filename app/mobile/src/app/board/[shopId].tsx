@@ -27,7 +27,7 @@ export default function BoardScreen() {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -48,31 +48,7 @@ export default function BoardScreen() {
     return () => {
       alive = false;
     };
-  }, [shopId]);
-
-  const canSend = orders?.some((o) =>
-    ["estimate_sent", "estimate_declined", "approved", "inspection"].includes(
-      o.status
-    )
-  );
-
-  async function sendEstimateLink() {
-    if (!shopId || sending) return;
-    setSending(true);
-    const { status, data } = await apiFetch<{ token?: string }>(
-      "POST",
-      `/v1/shops/${shopId}/estimate-demo/send`
-    );
-    if (status === 200 && data.token) {
-      router.push({
-        pathname: "/estimate/[shopId]",
-        params: { shopId: String(shopId), token: data.token },
-      });
-    } else {
-      setError("ግምቱን መላክ አልተቻለም — እባክዎ እንደገና ይሞክሩ።");
-    }
-    setSending(false);
-  }
+  }, [shopId, reloadKey]);
 
   const list = orders?.filter(
     (o) => filter === "all" || o.status === filter
@@ -92,23 +68,6 @@ export default function BoardScreen() {
         </View>
       </View>
       <Text style={styles.title}>{shop?.name ?? ""}</Text>
-
-      {canSend && (
-        <Pressable
-          onPress={sendEstimateLink}
-          disabled={sending}
-          style={({ pressed }) => [
-            styles.estimateBanner,
-            (pressed || sending) && styles.pressed,
-            sending && styles.disabled,
-          ]}
-        >
-          <Text style={styles.estimateText}>
-            {sending ? "ግምት በመላክ ላይ…" : "አዲስ ግምት አገናኝ ላክ"}
-          </Text>
-          <Text style={styles.estimateArrow}>→</Text>
-        </Pressable>
-      )}
 
       <View>
         <ScrollView
@@ -138,7 +97,13 @@ export default function BoardScreen() {
           data={list}
           keyExtractor={(o) => o.id}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => <OrderCard order={item} />}
+          renderItem={({ item }) => (
+            <OrderCard
+              order={item}
+              shopId={String(shopId)}
+              onDone={() => setReloadKey((k) => k + 1)}
+            />
+          )}
           ListEmptyComponent={
             <Text style={styles.empty}>በዚህ ሁኔታ ምንም የለም።</Text>
           }
@@ -166,7 +131,15 @@ function FilterChip({
   );
 }
 
-function OrderCard({ order }: { order: Order }) {
+function OrderCard({
+  order,
+  shopId,
+  onDone,
+}: {
+  order: Order;
+  shopId: string;
+  onDone: () => void;
+}) {
   const c = chipColors[order.status] ?? chipColors.cancelled;
   return (
     <View style={styles.card}>
@@ -189,6 +162,98 @@ function OrderCard({ order }: { order: Order }) {
           ተስፋ ቀን: {order.promisedAt.slice(0, 10)}
         </Text>
       )}
+      <OrderOps order={order} shopId={shopId} onDone={onDone} />
+    </View>
+  );
+}
+
+const ADVANCE_NEXT: Record<string, string> = {
+  received: "inspection",
+  approved: "in_progress",
+  in_progress: "complete",
+};
+
+const ADVANCE_LABEL: Record<string, string> = {
+  inspection: "ምርመራ ግባ",
+  in_progress: "ሥራ ጀምር",
+  complete: "ተጠናቋል",
+};
+
+function OrderOps({
+  order,
+  shopId,
+  onDone,
+}: {
+  order: Order;
+  shopId: string;
+  onDone: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const nextTo = ADVANCE_NEXT[order.status];
+  const label = nextTo ? ADVANCE_LABEL[nextTo] : null;
+
+  const advance = async () => {
+    if (busy || !nextTo) return;
+    setBusy(true);
+    const { status } = await apiFetch(
+      "POST",
+      `/v1/shops/${shopId}/orders/${order.id}/status`,
+      { to: nextTo }
+    );
+    setBusy(false);
+    if (status === 200) onDone();
+  };
+
+  const resendLink = async () => {
+    if (busy) return;
+    setBusy(true);
+    const { status, data } = await apiFetch<{ token?: string }>(
+      "POST",
+      `/v1/shops/${shopId}/orders/${order.id}/estimate/send`
+    );
+    setBusy(false);
+    if (status === 200 && data.token) {
+      router.push({
+        pathname: "/estimate/[shopId]",
+        params: { shopId, token: data.token },
+      });
+    } else {
+      onDone();
+    }
+  };
+
+  if (!label && order.status !== "estimate_sent") return null;
+
+  return (
+    <View style={styles.opsRow}>
+      {label ? (
+        <Pressable
+          disabled={busy}
+          onPress={advance}
+          style={({ pressed }) => [
+            styles.opBtn,
+            pressed && styles.pressed,
+            busy && styles.disabled,
+          ]}
+        >
+          <Text style={styles.opText}>{busy ? "በመላክ ላይ…" : label}</Text>
+        </Pressable>
+      ) : (
+        <Pressable
+          disabled={busy}
+          onPress={resendLink}
+          style={({ pressed }) => [
+            styles.opBtn,
+            styles.opBtnAlt,
+            pressed && styles.pressed,
+            busy && styles.disabled,
+          ]}
+        >
+          <Text style={[styles.opText, styles.opTextAlt]}>
+            አገናኝ እንደገና ላክ
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -210,20 +275,6 @@ const styles = StyleSheet.create({
   },
   chipText: { color: "#a1a1aa", fontSize: 11 },
   title: { color: "#fafafa", fontSize: 20, fontWeight: "700" },
-  estimateBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "rgba(139,92,246,0.14)",
-    borderColor: "rgba(139,92,246,0.35)",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginTop: 12,
-  },
-  estimateText: { color: "#c4b5fd", fontSize: 13, flexShrink: 1 },
-  estimateArrow: { color: "#c4b5fd", fontSize: 15 },
   chipsRow: { gap: 8, paddingVertical: 14, paddingRight: 16 },
   filter: {
     borderRadius: 999,
@@ -258,5 +309,20 @@ const styles = StyleSheet.create({
   empty: { color: "#52525b", textAlign: "center", marginTop: 24 },
   pressed: { opacity: 0.85 },
   disabled: { opacity: 0.5 },
+  opsRow: { marginTop: 10, flexDirection: "row", gap: 8 },
+  opBtn: {
+    backgroundColor: "#10b981",
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: "flex-start",
+  },
+  opBtnAlt: {
+    backgroundColor: "rgba(139,92,246,0.15)",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(139,92,246,0.4)",
+  },
+  opText: { color: "#052e1b", fontSize: 12, fontWeight: "600" },
+  opTextAlt: { color: "#c4b5fd" },
   error: { color: "#f87171", marginTop: 24, textAlign: "center" },
 });

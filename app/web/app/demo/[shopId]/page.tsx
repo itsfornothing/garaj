@@ -9,6 +9,7 @@ import {
 } from "../../lib/api";
 import SendEstimateLink from "./SendEstimateLink";
 import IntakeTrigger from "./IntakeTrigger";
+import OrderActions from "./OrderActions";
 
 export const instant = false;
 
@@ -158,6 +159,7 @@ export default async function DemoBoard({ params }: { params: Params }) {
                         ተስፋ ቀን: {o.promisedAt.slice(0, 10)}
                       </p>
                     )}
+                    <OrderActions shopId={shop.id} order={o} taxRegime={shop.taxRegime} />
                   </article>
                 ))}
                 {list.length === 0 && (

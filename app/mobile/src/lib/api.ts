@@ -38,6 +38,14 @@ export type Order = {
   make: string;
   model: string;
   plateNumber: string | null;
+  estimateId?: string | null;
+  estimateVersionId?: string | null;
+  estimateVersionStatus?: string | null;
+  estimateRevision?: number | null;
+  invoiceId?: string | null;
+  invoiceNumber?: string | null;
+  invoiceStatus?: string | null;
+  invoiceTotalEtb?: string | null;
 };
 
 export type EstimateLine = {
