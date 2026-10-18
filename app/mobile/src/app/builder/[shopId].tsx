@@ -16,12 +16,9 @@ import {
   formatEtb,
   type Catalog,
 } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 
-const CURRENCIES = [
-  { value: "ETB", label: "ብር" },
-  { value: "CNY", label: "¥ (ቻይና)" },
-  { value: "USD", label: "$" },
-];
+const CURRENCIES = ["ETB", "CNY", "USD"];
 
 type Part = {
   nameAm: string;
@@ -43,6 +40,7 @@ export default function BuilderScreen() {
   const [parts, setParts] = useState<Part[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     let alive = true;
@@ -51,7 +49,7 @@ export default function BuilderScreen() {
         const c = await apiGet<Catalog>(`/v1/shops/${shopId}/catalog`);
         if (alive) setCatalog(c);
       } catch {
-        if (alive) setError("ካታሎግ ማምጣት አልተቻለም።");
+        if (alive) setError(t("est.catErr"));
       }
     })();
     return () => {
@@ -131,7 +129,7 @@ export default function BuilderScreen() {
     );
     if (status !== 201) {
       setBusy(false);
-      setError("ማስቀመጥ አልተቻለም — መስመር ይጨምሩ።");
+      setError(t("est.saveErr"));
       return;
     }
     if (!send) {
@@ -158,9 +156,9 @@ export default function BuilderScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable hitSlop={12} onPress={() => router.back()}>
-          <Text style={styles.back}>← ሰሌዳ</Text>
+          <Text style={styles.back}>{t("nav.back")} {t("nav.board")}</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>ግምት አዘጋጅ</Text>
+        <Text style={styles.headerTitle}>{t("est.title")}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -171,7 +169,7 @@ export default function BuilderScreen() {
 
       {catalog && (
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.section}>የሥራ አይነቶች</Text>
+          <Text style={styles.section}>{t("est.jobs")}</Text>
           {catalog.jobs.map((j) => (
             <Pressable
               key={j.id}
@@ -197,13 +195,13 @@ export default function BuilderScreen() {
             </Pressable>
           ))}
 
-          <Text style={styles.section}>የተካፋይ (ክፍሎች)</Text>
+          <Text style={styles.section}>{t("est.parts")}</Text>
           {parts.map((p, i) => (
             <View key={i} style={styles.part}>
               <TextInput
                 value={p.nameAm}
                 onChangeText={(t) => setPart(i, { nameAm: t })}
-                placeholder="የብሬክ ፓድ (ፊት)"
+                placeholder={t("est.partName")}
                 placeholderTextColor="#52525b"
                 style={[styles.input, styles.partName]}
               />
@@ -212,20 +210,20 @@ export default function BuilderScreen() {
                   <View style={styles.chips}>
                     {CURRENCIES.map((c) => (
                       <Pressable
-                        key={c.value}
-                        onPress={() => setPart(i, { currency: c.value })}
+                        key={c}
+                        onPress={() => setPart(i, { currency: c })}
                         style={[
                           styles.pchip,
-                          p.currency === c.value && styles.pchipActive,
+                          p.currency === c && styles.pchipActive,
                         ]}
                       >
                         <Text
                           style={[
                             styles.pchipText,
-                            p.currency === c.value && styles.pchipTextActive,
+                            p.currency === c && styles.pchipTextActive,
                           ]}
                         >
-                          {c.label}
+                          {t(`cur.${c}`)}
                         </Text>
                       </Pressable>
                     ))}
@@ -235,7 +233,7 @@ export default function BuilderScreen() {
                   value={p.cost}
                   onChangeText={(t) => setPart(i, { cost: t.replace(/[^\d.]/g, "") })}
                   keyboardType="decimal-pad"
-                  placeholder="ዋጋ"
+                  placeholder={t("est.partCost")}
                   placeholderTextColor="#52525b"
                   style={[styles.input, styles.partField]}
                 />
@@ -243,7 +241,7 @@ export default function BuilderScreen() {
                   value={p.qty}
                   onChangeText={(t) => setPart(i, { qty: t.replace(/\D/g, "") })}
                   keyboardType="number-pad"
-                  placeholder="ብዛት"
+                  placeholder={t("est.partQty")}
                   placeholderTextColor="#52525b"
                   style={[styles.input, styles.partQty]}
                 />
@@ -254,24 +252,24 @@ export default function BuilderScreen() {
             onPress={addPart}
             style={({ pressed }) => [styles.newBtn, pressed && styles.pressed]}
           >
-            <Text style={styles.newBtnText}>+ ክፍል ጨምር</Text>
+            <Text style={styles.newBtnText}>{t("est.addPart")}</Text>
           </Pressable>
           <Text style={styles.hint}>
-            ውጭ ምንዛሬ በዋጋ ተመዝግቦ በዛሬ የጽሑፍ ተመና ወደ ብር ይቀየራል (ማርጅን {catalog.fx.markupPct}%)።
+            {t("est.fxNote").replace("{pct}", String(catalog.fx.markupPct))}
           </Text>
 
           {preview && hasLines && (
             <View style={styles.preview}>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>ድምር</Text>
+                <Text style={styles.totalLabel}>{t("est.subtotal")}</Text>
                 <Text style={styles.totalVal}>{formatEtb(preview.sub)}</Text>
               </View>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>ቫት/ክፍያ</Text>
+                <Text style={styles.totalLabel}>{t("est.tax")}</Text>
                 <Text style={styles.totalVal}>{formatEtb(preview.tax)}</Text>
               </View>
               <View style={styles.totalRow}>
-                <Text style={styles.grandLabel}>ጠቅላላ</Text>
+                <Text style={styles.grandLabel}>{t("est.total")}</Text>
                 <Text style={styles.grandVal}>
                   {formatEtb(preview.total)} ብር
                 </Text>
@@ -290,7 +288,7 @@ export default function BuilderScreen() {
                 (!hasLines || busy) && styles.disabled,
               ]}
             >
-              <Text style={styles.payBtnGhostText}>ማስቀመጥ</Text>
+              <Text style={styles.payBtnGhostText}>{t("act.save")}</Text>
             </Pressable>
             <Pressable
               disabled={!hasLines || busy}
@@ -302,7 +300,7 @@ export default function BuilderScreen() {
               ]}
             >
               <Text style={styles.payBtnText}>
-                {busy ? "በመላክ ላይ…" : "ማስቀመጥ + አገናኝ ላክ"}
+                {busy ? t("act.busy") : t("act.send")}
               </Text>
             </Pressable>
           </View>

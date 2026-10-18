@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { apiJson, statusAm, type Order } from "../../lib/api";
+import { useLang } from "../../lib/i18n";
 import EstimateBuilderDialog from "./EstimateBuilderDialog";
 import InvoiceDialog from "./InvoiceDialog";
 
@@ -10,15 +10,17 @@ export default function OrderActions({
   shopId,
   order,
   taxRegime,
+  onChanged,
 }: {
   shopId: string;
   order: Order;
   taxRegime: string;
+  onChanged?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [builderOpen, setBuilderOpen] = useState(false);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
-  const router = useRouter();
+  const { t } = useLang();
 
   async function advance(to: string) {
     if (busy) return;
@@ -27,13 +29,13 @@ export default function OrderActions({
       to,
     });
     setBusy(false);
-    router.refresh();
+    onChanged?.();
   }
 
   if (order.status === "paid") {
     return (
       <p className="mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-        {order.invoiceNumber} · ተከፍሏል ✓
+        {order.invoiceNumber} · {t("st.paid")} ✓
       </p>
     );
   }
@@ -41,64 +43,67 @@ export default function OrderActions({
   if (order.status === "estimate_sent") {
     return (
       <p className="mt-3 text-xs text-zinc-400">
-        ግምት ተላከ (ድጋሚ {order.estimateRevision ?? 1}) — ደንበኛውን ይጠብቁ።
+        {t("st.estimate_sent")} (v{order.estimateRevision ?? 1})
       </p>
     );
   }
 
-  const solid = "rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white transition-transform duration-150 ease-out hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40";
-  const dark = "rounded-lg bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-white transition-transform duration-150 ease-out hover:bg-zinc-700 active:scale-[0.97] disabled:opacity-40 dark:bg-white dark:text-zinc-900";
-  const ghost = "rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs font-medium text-zinc-600 transition-transform duration-150 ease-out active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400";
+  const solid =
+    "press rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40";
+  const dark =
+    "press rounded-lg bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 active:scale-[0.97] disabled:opacity-40 dark:bg-white dark:text-zinc-900";
+  const ghost =
+    "press rounded-lg border border-zinc-300 px-2.5 py-1.5 text-xs font-medium text-zinc-600 active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-400";
 
   const btnFor: Record<string, React.ReactNode> = {
     received: (
       <>
         <button className={solid} disabled={busy} onClick={() => advance("inspection")}>
-          ምርመራ ግባ
+          {t("act.inspect")}
         </button>
         <button className={ghost} disabled={busy} onClick={() => advance("cancelled")}>
-          ሰርዝ
+          {t("act.cancel")}
         </button>
       </>
     ),
     inspection: (
       <>
         <button className={solid} disabled={busy} onClick={() => setBuilderOpen(true)}>
-          ግምት አዘጋጅ
+          {t("act.build")}
         </button>
         <button className={ghost} disabled={busy} onClick={() => advance("cancelled")}>
-          ሰርዝ
+          {t("act.cancel")}
         </button>
       </>
     ),
     estimate_declined: (
       <>
         <button className={solid} disabled={busy} onClick={() => setBuilderOpen(true)}>
-          እንደገና አገናኝ ላክ
+          {t("act.build")}
         </button>
         <button className={ghost} disabled={busy} onClick={() => advance("cancelled")}>
-          ሰርዝ
+          {t("act.cancel")}
         </button>
       </>
     ),
     approved: (
       <>
         <button className={solid} disabled={busy} onClick={() => advance("in_progress")}>
-          ሥራ ጀምር
+          {t("act.startWork")}
         </button>
         <button className={ghost} disabled={busy} onClick={() => advance("cancelled")}>
-          ሰርዝ
+          {t("act.cancel")}
         </button>
       </>
     ),
     in_progress: (
       <button className={solid} disabled={busy} onClick={() => advance("complete")}>
-        ተጠናቋል
+        {t("act.finish")}
       </button>
     ),
     complete: (
       <button className={dark} disabled={busy} onClick={() => setInvoiceOpen(true)}>
-        ደረሰኝ አዘጋጅ
+        {order.invoiceId ? t("act.viewInvoice") : t("act.invoice")}
       </button>
     ),
   };
@@ -109,7 +114,7 @@ export default function OrderActions({
         {btnFor[order.status]}
         {order.status === "estimate_declined" && (
           <span className="text-[11px] text-red-500">
-            ግምቱ እምቢ ተብሏል — {statusAm[order.status]}
+            {t("st.estimate_declined")}
           </span>
         )}
       </div>
@@ -120,7 +125,7 @@ export default function OrderActions({
         open={builderOpen}
         onClose={() => {
           setBuilderOpen(false);
-          router.refresh();
+          onChanged?.();
         }}
       />
       <InvoiceDialog
@@ -130,7 +135,7 @@ export default function OrderActions({
         open={invoiceOpen}
         onClose={() => {
           setInvoiceOpen(false);
-          router.refresh();
+          onChanged?.();
         }}
       />
     </>

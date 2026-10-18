@@ -14,6 +14,7 @@ import {
   type Order,
   type Shop,
 } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 
 export default function ShopsScreen() {
   const insets = useSafeAreaInsets();
@@ -21,6 +22,7 @@ export default function ShopsScreen() {
     { shop: Shop; active: number; paid: number }[] | null
   >(null);
   const [error, setError] = useState<string | null>(null);
+  const { t, lang, setLang } = useLang();
 
   useEffect(() => {
     let alive = true;
@@ -41,7 +43,7 @@ export default function ShopsScreen() {
         );
         if (alive) setRows(rows);
       } catch {
-        if (alive) setError("አገልግሎቱን ማግኘት አልተቻለም — API በርት ይሆን?");
+        if (alive) setError(t("nav.error"));
       }
     })();
     return () => {
@@ -58,10 +60,19 @@ export default function ShopsScreen() {
       ]}
     >
       <Stack.Screen options={{ headerShown: false }} />
-      <Text style={styles.badge}>ለኢትዮጵያ ጋራዦች የተመሰረተ</Text>
-      <Text style={styles.h1}>ጋራዥዎን በስልክዎ ያስተዳድሩ</Text>
+      <View style={styles.topRow}>
+        <Text style={styles.badge}>{t("shop.sub")}</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setLang(lang === "am" ? "en" : "am")}
+          style={({ pressed }) => [styles.langBtn, pressed && { opacity: 0.7 }]}
+        >
+          <Text style={styles.langText}>{lang === "am" ? "EN" : "አማ"}</Text>
+        </Pressable>
+      </View>
+      <Text style={styles.h1}>{t("shop.pick")}</Text>
       <Text style={styles.sub}>
-        ተቀብሎ ከተከፍሏል ድረስ — ሁሉም በአንድ ቦታ። በአማርኛ ፊደል፣ በብር።
+        {t("nav.brand")} — {t("shop.ev")} · {t("shop.general")}
       </Text>
 
       {error && <Text style={styles.error}>{error}</Text>}
@@ -80,15 +91,15 @@ export default function ShopsScreen() {
               <Text style={styles.shopName}>{shop.name}</Text>
               <View style={styles.chip}>
                 <Text style={styles.chipText}>
-                  {shop.shopType === "ev" ? "ኤቪ" : shop.shopType === "tire" ? "ጎማ" : "አጠቃላይ"}
-                  {shop.taxRegime === "vat_15" ? " · ቫት 15%" : ""}
+                  {shop.shopType === "ev" ? t("shop.ev") : shop.shopType === "tire" ? t("shop.tire") : t("shop.general")}
+                  {shop.taxRegime === "vat_15" ? ` · ${t("est.taxV")}` : ""}
                 </Text>
               </View>
             </View>
             <Text style={styles.counts}>
-              {active} ንቁ ሥራ · {paid} የተከፈሉ
+              {active} {t("st.in_progress")} · {paid} {t("st.paid")}
             </Text>
-            <Text style={styles.cta}>ሠሌዳውን ይክፈቱ →</Text>
+            <Text style={styles.cta}>{t("nav.board")} →</Text>
           </Pressable>
         </Link>
       ))}
@@ -116,6 +127,21 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   sub: { color: "#a1a1aa", fontSize: 15, lineHeight: 23, marginTop: 8 },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  langBtn: {
+    borderColor: "#262626",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#111113",
+  },
+  langText: { color: "#10b981", fontSize: 12, fontWeight: "700" },
   card: {
     backgroundColor: "#111113",
     borderColor: "#262626",

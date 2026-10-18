@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { apiJson } from "../../lib/api";
+import { API_URL } from "../../lib/api";
+import { useLang } from "../../lib/i18n";
 
 type VehicleHit = {
   id: string;
@@ -15,34 +15,18 @@ type VehicleHit = {
   consentGiven: boolean;
 };
 
-const ERROR_AM: Record<string, string> = {
-  consent_required: "የደንበኛ ፍቃድ ማረጋገጥ አስፈላጊ ነው።",
-  customer_required: "የደንበኛው ስልክ ቁጥር እና ሙሉ ስም ያስፈልጋሉ።",
-  vehicle_required: "ብራንድ እና ሞዴል ያስፈልጋሉ።",
-  vehicle_not_found: "ተሽከርካሪው አልተገኘም።",
-  customer_vehicle_mismatch: "የተመረጠው ተሽከርካሪ እና ደንበኛ አይስማሙም።",
-  fuel_type_required: "የነዳጅ አይነት ይምረጡ።",
-};
-
-const FUELS: { value: string; label: string }[] = [
-  { value: "petrol", label: "በንዚን" },
-  { value: "diesel", label: "ዲዝኤል" },
-  { value: "bev", label: "ኤሌክትሪክ" },
-  { value: "hev", label: "ሃይብሪድ" },
-  { value: "phev", label: "ሃይብሪድ (ፕላግ-ኢን)" },
-  { value: "lpg", label: "ኤልፒጂ" },
-  { value: "other", label: "ሌላ" },
-];
-
 export default function IntakeDialog({
   shopId,
   open,
   onClose,
+  onChanged,
 }: {
   shopId: string;
   open: boolean;
   onClose: () => void;
+  onChanged?: () => void;
 }) {
+  const { t } = useLang();
   const [q, setQ] = useState("");
   const [results, setResults] = useState<VehicleHit[]>([]);
   const [sel, setSel] = useState<VehicleHit | null>(null);
@@ -58,7 +42,25 @@ export default function IntakeDialog({
   const [odometer, setOdometer] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const router = useRouter();
+
+  const FUELS: { value: string; key: string }[] = [
+    { value: "petrol", key: "fm.fuel.petrol" },
+    { value: "diesel", key: "fm.fuel.diesel" },
+    { value: "bev", key: "fm.fuel.ev" },
+    { value: "hev", key: "fm.fuel.hybrid" },
+    { value: "phev", key: "fm.fuel.plug_in_hybrid" },
+    { value: "lpg", key: "fm.fuel.lpg" },
+    { value: "other", key: "intake.fuelOther" },
+  ];
+
+  const ERROR_KEY: Record<string, string> = {
+    consent_required: "intake.consent",
+    customer_required: "intake.name",
+    vehicle_required: "intake.model",
+    vehicle_not_found: "intake.search",
+    customer_vehicle_mismatch: "intake.search",
+    fuel_type_required: "intake.fuel",
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -77,16 +79,14 @@ export default function IntakeDialog({
       return;
     }
     let alive = true;
-    const t = setTimeout(async () => {
-      const { data } = await apiJson<{ results: VehicleHit[] }>(
-        "GET",
-        `/v1/shops/${shopId}/vehicles?q=${encodeURIComponent(term)}`
-      );
+    const timer = setTimeout(async () => {
+      const res = await fetch(`${API_URL}/v1/shops/${shopId}/vehicles?q=${encodeURIComponent(term)}`);
+      const data = await res.json();
       if (alive) setResults(data.results ?? []);
     }, 250);
     return () => {
       alive = false;
-      clearTimeout(t);
+      clearTimeout(timer);
     };
   }, [q, shopId, open, mode]);
 
@@ -113,12 +113,7 @@ export default function IntakeDialog({
     if (busy) return;
     setBusy(true);
     const body = sel
-      ? {
-          vehicleId: sel.id,
-          consent,
-          notesAm: notes || undefined,
-          odometerIn: odometer ? Number(odometer) : undefined,
-        }
+      ? { vehicleId: sel.id, consent, notesAm: notes || undefined, odometerIn: odometer ? Number(odometer) : undefined }
       : {
           plate: plate || undefined,
           make,
@@ -130,26 +125,28 @@ export default function IntakeDialog({
           notesAm: notes || undefined,
           odometerIn: odometer ? Number(odometer) : undefined,
         };
-    const { status, data } = await apiJson<{ error?: string; messageAm?: string }>(
-      "POST",
-      `/v1/shops/${shopId}/intake`,
-      body
-    );
+    const res = await fetch(`${API_URL}/v1/shops/${shopId}/intake`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
     setBusy(false);
-    if (status === 201) {
+    if (res.status === 201) {
       reset();
       onClose();
-      router.refresh();
+      onChanged?.();
       return;
     }
+    const data = await res.json().catch(() => ({}));
     setError(
-      data.messageAm ??
-        (data.error && ERROR_AM[data.error]) ??
-        "ችግር ተከስቷል — እባክዎ እንደገና ይሞክሩ።"
+      data.error && ERROR_KEY[data.error]
+        ? t(ERROR_KEY[data.error])
+        : t("inv.fail")
     );
   }
 
-  const consentUnchecked = !consent;
+  const inputCls =
+    "mt-1.5 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50";
 
   return (
     <div
@@ -158,10 +155,10 @@ export default function IntakeDialog({
         if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="modal-in w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-            አዲስ ሥራ ተቀበል
+            {t("intake.title")}
           </h2>
           <button
             onClick={onClose}
@@ -175,7 +172,7 @@ export default function IntakeDialog({
         {mode === "search" ? (
           <>
             <label className="mt-4 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              ተሽከርካሪ ፈልግ
+              {t("intake.search")}
             </label>
             <input
               autoFocus
@@ -184,20 +181,19 @@ export default function IntakeDialog({
                 setQ(e.target.value);
                 setSel(null);
               }}
-              placeholder="ሰሌዳ ቁጥር፣ ስልክ ወይም ደንበኛ ስም"
-              className="mt-1.5 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+              className={inputCls}
             />
             {sel ? (
               <div className="mt-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
                 <p className="font-medium text-emerald-800 dark:text-emerald-300">
-                  {sel.make} {sel.model} · {sel.plateNumber ?? "ሰሌዳ የለም"}
+                  {sel.make} {sel.model} · {sel.plateNumber ?? "—"}
                 </p>
                 <p className="text-emerald-700 dark:text-emerald-400">
                   {sel.customerNameAm} · {sel.customerPhone}
                 </p>
               </div>
             ) : (
-              <ul className="mt-2 flex flex-col gap-1">
+              <ul className="mt-2 flex max-h-56 flex-col gap-1 overflow-y-auto">
                 {results.map((v) => (
                   <li key={v.id}>
                     <button
@@ -208,7 +204,7 @@ export default function IntakeDialog({
                         {v.make} {v.model}
                       </span>
                       <span className="ml-2 text-zinc-400">
-                        {v.plateNumber ?? "ሰሌዳ የለም"}
+                        {v.plateNumber ?? "—"}
                       </span>
                       <span className="block text-xs text-zinc-500">
                         {v.customerNameAm} · {v.customerPhone}
@@ -218,69 +214,51 @@ export default function IntakeDialog({
                 ))}
                 {q.trim().length >= 2 && results.length === 0 && (
                   <li className="px-1 py-2 text-sm text-zinc-400">
-                    ምንም አልተገኘም — ከታች አዲስ ተሽከርካሪ ማስገባት ይችላሉ።
+                    {t("intake.newVehicle")}
                   </li>
                 )}
               </ul>
             )}
             <button
               onClick={() => setMode("new")}
-              className="mt-3 text-sm font-medium text-emerald-700 transition-transform duration-150 ease-out active:scale-[0.97] dark:text-emerald-400"
+              className="press mt-3 text-sm font-medium text-emerald-700 active:scale-[0.97] dark:text-emerald-400"
             >
-              + አዲስ ተሽከርካሪ
+              {t("intake.newVehicle")}
             </button>
           </>
         ) : (
           <>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <input
-                value={plate}
-                onChange={(e) => setPlate(e.target.value)}
-                placeholder="ሰሌዳ ቁጥር (አማራጭ)"
-                className="col-span-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              />
-              <input
-                value={make}
-                onChange={(e) => setMake(e.target.value)}
-                placeholder="ብራንድ (ኮሮላ…)"
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              />
-              <input
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="ሞዴል"
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              />
-              <select
-                value={fuelType}
-                onChange={(e) => setFuelType(e.target.value)}
-                className="col-span-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              >
-                {FUELS.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                inputMode="tel"
-                placeholder="ደንበኛው ስልክ"
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              />
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="ደንበኛው ሙሉ ስም"
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              />
+            <input value={plate} onChange={(e) => setPlate(e.target.value)} placeholder={t("intake.plate")} className={inputCls} />
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <input value={make} onChange={(e) => setMake(e.target.value)} placeholder={t("intake.make")} className={inputCls} />
+              <input value={model} onChange={(e) => setModel(e.target.value)} placeholder={t("intake.model")} className={inputCls} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {FUELS.map((f) => (
+                <button
+                  key={f.value}
+                  type="button"
+                  onClick={() => setFuelType(f.value)}
+                  className={
+                    "rounded-full border px-3 py-1.5 text-xs transition-colors " +
+                    (fuelType === f.value
+                      ? "border-emerald-600 bg-emerald-600/10 font-medium text-emerald-700 dark:text-emerald-400"
+                      : "border-zinc-300 text-zinc-500 hover:border-zinc-400 dark:border-zinc-700")
+                  }
+                >
+                  {t(f.key)}
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder={t("intake.phone")} className={inputCls} />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("intake.name")} className={inputCls} />
             </div>
             <button
               onClick={() => setMode("search")}
-              className="mt-3 text-sm font-medium text-emerald-700 transition-transform duration-150 ease-out active:scale-[0.97] dark:text-emerald-400"
+              className="press mt-4 text-sm font-medium text-emerald-700 active:scale-[0.97] dark:text-emerald-400"
             >
-              ← ፍለጋ ወደ ሰሌዳ
+              ← {t("intake.search")}
             </button>
           </>
         )}
@@ -296,30 +274,20 @@ export default function IntakeDialog({
               }}
               className="mt-0.5 h-4 w-4 accent-emerald-600"
             />
-            <span>
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                ደንበኛው ፍቃድ ሰጠ።
-              </span>
-              <span className="block text-xs text-zinc-500">
-                በስልክ የሚላክ ግምት ማገናኛ እና ማሳወቂያ እንደሚቀበል ፈቅዷል — በቃል አገናኝ ማድረግ ያስፈልጋል።
-              </span>
+            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+              {t("intake.consent")}
             </span>
           </label>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          <input
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="ማስታወሻ (አማራጭ)"
-            className="col-span-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-          />
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t("intake.notes")} className={"col-span-2 " + inputCls} />
           <input
             value={odometer}
             onChange={(e) => setOdometer(e.target.value.replace(/\D/g, ""))}
             inputMode="numeric"
-            placeholder="ኦዶሜተር"
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-shadow focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+            placeholder={t("intake.odometer").split(" ")[0]}
+            className={inputCls}
           />
         </div>
 
@@ -331,14 +299,12 @@ export default function IntakeDialog({
           onClick={submit}
           disabled={
             busy ||
-            consentUnchecked ||
-            (sel
-              ? false
-              : !make || !model || !fuelType || !phone || !name)
+            !consent ||
+            (sel ? false : !make || !model || !fuelType || !phone || !name)
           }
-          className="mt-5 w-full rounded-xl bg-emerald-600 px-5 py-3 font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
+          className="press mt-5 w-full rounded-xl bg-emerald-600 px-5 py-3 font-medium text-white hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
         >
-          {busy ? "በመመዝገብ ላይ…" : "ተቀበል"}
+          {busy ? t("act.busy") : t("intake.submit")}
         </button>
       </div>
     </div>

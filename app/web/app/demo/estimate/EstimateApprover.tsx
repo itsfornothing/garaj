@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { apiJson } from "../../lib/api";
+import { useLang } from "../../lib/i18n";
 
 export type Line = {
   id: string;
@@ -67,6 +68,7 @@ export default function EstimateApprover({
     null
   );
   const [busy, setBusy] = useState(false);
+  const { t } = useLang();
 
   const head = data.head;
   const expiredInit = new Date(head.tokenExpiresAt) < new Date();
@@ -119,7 +121,7 @@ export default function EstimateApprover({
     }
     if (status === 400 && res.error === "last4_mismatch") {
       setPinError({
-        text: res.messageAm ?? "የስልክ ቁጥርዎ የመጨረሻዎቹ 4 አይመስሉም።",
+        text: t("cust.wrongPin"),
         remaining: res.remaining ?? 0,
       });
       return;
@@ -130,23 +132,14 @@ export default function EstimateApprover({
       setLinkState(res.error === "link_expired" ? "expired" : "invalid");
     else if (status === 409) setLinkState("invalid");
     else
-      setPinError({ text: "ችግር ተከስቷል — እባክዎ እንደገና ይሞክሩ።", remaining: 0 });
+      setPinError({ text: t("inv.fail"), remaining: 0 });
   }
 
   if (linkState) {
     const copy = {
-      locked: {
-        title: "በጊዜያዊ ቅናች ላይ ነው።",
-        body: "ብዙ ውድቅ መረጃ ገብቷል — ለ15 ደቂቃ ይህ ማገናኛ ተቀናቅቧል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
-      },
-      expired: {
-        title: "ጊዜው አልቋል።",
-        body: "የማገናኛው ጊዜ አልቋል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
-      },
-      invalid: {
-        title: "የማገናኛው ትክክል አይደለም።",
-        body: "ይህ ማገናኛ አልተጠቀመም ወይም ተሠርዟል። ጋራዥዎን ደውለው አዲስ እንዲልክ ጠይቁ።",
-      },
+      locked: { title: t("cust.locked"), body: t("cust.lockedB") },
+      expired: { title: t("cust.expired"), body: t("cust.expiredB") },
+      invalid: { title: t("cust.badLink"), body: t("cust.badLinkB") },
     }[linkState];
     return (
       <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
@@ -164,7 +157,7 @@ export default function EstimateApprover({
             {head.make} {head.model}
           </p>
           <span className="text-sm text-zinc-400">
-            ሰሌዳ {head.plateNumber ?? "—"}
+            {t("board.plate")} {head.plateNumber ?? "—"}
           </span>
         </div>
         <p className="mt-1 text-sm text-zinc-500">
@@ -174,7 +167,7 @@ export default function EstimateApprover({
 
       {expiredInit ? (
         <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
-          የማገናኛው ጊዜ አልቋል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።
+          {t("cust.expiredB")}
         </div>
       ) : (
         <>
@@ -196,7 +189,7 @@ export default function EstimateApprover({
                         <p className="font-medium text-zinc-900 dark:text-zinc-50">
                           {l.nameAm}
                           <span className="ml-2 text-xs text-zinc-400">
-                            {l.kind === "service" ? "ሥራ" : "ምርት"}
+                            {l.kind === "service" ? t("cust.kindService") : t("cust.kindPart")}
                           </span>
                         </p>
                         <p className="text-sm text-zinc-500">
@@ -213,7 +206,7 @@ export default function EstimateApprover({
             </ul>
             <div className="border-t border-zinc-200 bg-zinc-50 px-5 py-4 dark:border-zinc-800 dark:bg-zinc-800/40">
               <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
-                <span>ጠቅላላ</span>
+                <span>{t("est.subtotal")}</span>
                 <span className="tabular-nums">{etb(Number(head.subtotalEtb))} ብር</span>
               </div>
               <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
@@ -221,12 +214,12 @@ export default function EstimateApprover({
                 <span className="tabular-nums">{etb(Number(head.taxEtb))} ብር</span>
               </div>
               <div className="mt-1 flex justify-between border-t border-dashed border-zinc-300 pt-2 font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-50">
-                <span>ጠቅላላ ለመክፈል</span>
+                <span>{t("est.total")}</span>
                 <span className="tabular-nums">{etb(Number(head.totalEtb))} ብር</span>
               </div>
               {!decision && (
                 <p className="mt-2 text-xs text-zinc-400">
-                  በሁለቱም መስመሮች ላይ ምረጥ መደረግ ይችላል — የመረጡት ብቻ ይፈቀዳል።
+                  {t("cust.deferNote")}
                 </p>
               )}
             </div>
@@ -235,13 +228,10 @@ export default function EstimateApprover({
           {decision ? (
             <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
               {decision.kind === "declined" ? (
-                <>ግምቱ እምቢ ተብሎ ተመዝግቧል። ጋራዥዎ በቅርቡ ተለዋጭ አማራጭ ገልጸልዎታል።</>
+                <>{t("cust.declined")}</>
               ) : (
                 <>
-                  ፈቃድዎ ተመዝግቧል —{" "}
-                  {decision.kind === "approved_all"
-                    ? "ሙሉ ግምት"
-                    : `${decision.lines} መስመሮች`}። ጋራዥዎ ሥራውን ይጀምራል፣ ሲጠናቅ ስልክ እንዲደርስዎ ይላከል።
+                  {t("cust.thanks")}
                 </>
               )}
             </div>
@@ -249,7 +239,7 @@ export default function EstimateApprover({
             <>
               <div className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  የስልክ ቁጥርዎ የመጨረሻ 4 አሃዞች
+                  {t("cust.pinLabel")}
                 </label>
                 <input
                   inputMode="numeric"
@@ -267,7 +257,7 @@ export default function EstimateApprover({
                     {pinError.text}
                     {pinError.remaining > 0 && (
                       <span className="ml-1 text-xs opacity-70">
-                        (እስከ {pinError.remaining} ሙከራ ቀርቷል)
+                        ({pinError.remaining})
                       </span>
                     )}
                   </p>
@@ -287,15 +277,15 @@ export default function EstimateApprover({
                   className="flex-1 rounded-xl bg-emerald-600 px-5 py-3 font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
                 >
                   {selected.size === data.lines.length
-                    ? "ሙሉ ግምት ፈቅድ"
-                    : `${selected.size} መስመሮችን ብቻ ፈቅድ`}
+                    ? t("cust.approveAll")
+                    : t("cust.approveSel")} ({selected.size})
                 </button>
                 <button
                   disabled={busy}
                   onClick={() => attempt("declined")}
                   className="rounded-xl border border-zinc-300 px-5 py-3 font-medium text-zinc-700 transition-transform duration-200 ease-out active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300"
                 >
-                  ፈቅዳም እምቢ
+                  {t("cust.declineAll")}
                 </button>
               </div>
             </>

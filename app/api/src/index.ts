@@ -1142,6 +1142,48 @@ app.post<{ Params: { shopId: string; invoiceId: string } }>(
   }
 );
 
+// Invoices across the shop (nav "Invoices" section reads this).
+app.get<{ Params: { shopId: string } }>(
+  "/v1/shops/:shopId/invoices",
+  async (req, reply) => {
+    const { shopId } = req.params;
+    const r = await pool.query(
+      `SELECT i.id, i.invoice_number AS "invoiceNumber", i.status,
+              i.total_etb AS "totalEtb", i.issued_at AS "issuedAt",
+              c.full_name_am AS "customerNameAm",
+              v.make, v.model, v.plate_number AS "plateNumber"
+         FROM invoices i
+         JOIN orders o ON o.id = i.order_id
+         JOIN customers c ON c.id = o.customer_id
+         JOIN vehicles v ON v.id = o.vehicle_id
+        WHERE i.shop_id = $1
+        ORDER BY i.issued_at DESC
+        LIMIT 100`,
+      [shopId]
+    );
+    return { invoices: r.rows };
+  }
+);
+
+// Audit trail across the shop (nav "Audit" section reads this).
+app.get<{ Params: { shopId: string } }>(
+  "/v1/shops/:shopId/audit",
+  async (req, reply) => {
+    const { shopId } = req.params;
+    const r = await pool.query(
+      `SELECT id, created_at AS "at", actor_user_id AS "actorUserId",
+              action, entity AS "refType", entity_id AS "refId",
+              before, after, channel
+         FROM audit_log
+        WHERE shop_id = $1
+        ORDER BY created_at DESC
+        LIMIT 60`,
+      [shopId]
+    );
+    return { entries: r.rows };
+  }
+);
+
 app.listen({ port, host: "0.0.0.0" }).catch((err) => {
   app.log.error(err);
   process.exit(1);

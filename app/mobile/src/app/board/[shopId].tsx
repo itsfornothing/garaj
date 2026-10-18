@@ -3,6 +3,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,6 +20,7 @@ import {
   type Order,
   type Shop,
 } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 
 export default function BoardScreen() {
   const insets = useSafeAreaInsets();
@@ -28,6 +30,8 @@ export default function BoardScreen() {
   const [filter, setFilter] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { t, lang, setLang } = useLang();
 
   useEffect(() => {
     let alive = true;
@@ -42,7 +46,7 @@ export default function BoardScreen() {
         );
         if (alive) setOrders(orders);
       } catch {
-        if (alive) setError("መረጃውን ማምጣት አልተቻለም።");
+        if (alive) setError(t("nav.error"));
       }
     })();
     return () => {
@@ -64,29 +68,64 @@ export default function BoardScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable hitSlop={12} onPress={() => router.back()}>
-          <Text style={styles.back}>← ጋራዥ</Text>
+          <Text style={styles.back}>{t("nav.back")} {t("nav.brand")}</Text>
         </Pressable>
         <View style={styles.chip}>
           <Text style={styles.chipText}>
-            {shop?.shopType === "ev" ? "ኤቪ ጋራዥ" : shop?.shopType === "tire" ? "ጎማ ጋራዥ" : "አጠቃላይ ጋራዥ"}
-            {shop?.taxRegime === "vat_15" ? " · ቫት 15%" : ""}
+            {shop?.shopType === "ev" ? t("shop.ev") : shop?.shopType === "tire" ? t("shop.tire") : t("shop.general")}
+            {shop?.taxRegime === "vat_15" ? ` · ${t("est.taxV")}` : ""}
           </Text>
         </View>
       </View>
       <View style={styles.titleRow}>
         <Text style={styles.title}>{shop?.name ?? ""}</Text>
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: "/intake/[shopId]",
-              params: { shopId: String(shopId) },
-            })
-          }
-          style={({ pressed }) => [styles.newOrderBtn, pressed && styles.pressed]}
-        >
-          <Text style={styles.newOrderText}>+ አዲስ ሥራ</Text>
-        </Pressable>
+        <View style={styles.titleBtns}>
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/intake/[shopId]",
+                params: { shopId: String(shopId) },
+              })
+            }
+            style={({ pressed }) => [styles.newOrderBtn, pressed && styles.pressed]}
+          >
+            <Text style={styles.newOrderText}>+ {t("intake.title")}</Text>
+          </Pressable>
+          <Pressable
+            accessibilityLabel={t("nav.menu")}
+            onPress={() => setMenuOpen(true)}
+            style={({ pressed }) => [styles.menuBtn, pressed && styles.pressed]}
+          >
+            <Text style={styles.menuText}>⋯</Text>
+          </Pressable>
+        </View>
       </View>
+
+      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+        <Pressable style={styles.overlay} onPress={() => setMenuOpen(false)}>
+          <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
+            <Text style={styles.sheetTitle}>{shop?.name ?? t("nav.menu")}</Text>
+            <MenuItem
+              label={t("nav.invoices")}
+              onPress={() => {
+                setMenuOpen(false);
+                router.push({ pathname: "/invoices/[shopId]", params: { shopId: String(shopId) } });
+              }}
+            />
+            <MenuItem
+              label={t("nav.audit")}
+              onPress={() => {
+                setMenuOpen(false);
+                router.push({ pathname: "/audit/[shopId]", params: { shopId: String(shopId) } });
+              }}
+            />
+            <MenuItem
+              label={lang === "am" ? "English" : "አማርኛ"}
+              onPress={() => setLang(lang === "am" ? "en" : "am")}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <View>
         <ScrollView
@@ -94,11 +133,11 @@ export default function BoardScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.chipsRow}
         >
-          <FilterChip label="ሁሉም" active={filter === "all"} onPress={() => setFilter("all")} />
+          <FilterChip label={t("board.filterAll")} active={filter === "all"} onPress={() => setFilter("all")} />
           {statusOrder.map((s) => (
             <FilterChip
               key={s}
-              label={statusAm[s]}
+              label={t(`st.${s}`)}
               active={filter === s}
               onPress={() => setFilter(s)}
             />
@@ -125,7 +164,7 @@ export default function BoardScreen() {
             />
           )}
           ListEmptyComponent={
-            <Text style={styles.empty}>በዚህ ሁኔታ ምንም የለም።</Text>
+            <Text style={styles.empty}>{t("nav.empty")}</Text>
           }
         />
       )}
@@ -151,6 +190,23 @@ function FilterChip({
   );
 }
 
+function MenuItem({
+  label,
+  onPress,
+}: {
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
+    >
+      <Text style={styles.menuItemText}>{label}</Text>
+    </Pressable>
+  );
+}
+
 function OrderCard({
   order,
   shopId,
@@ -163,6 +219,7 @@ function OrderCard({
   taxRegime: string;
 }) {
   const c = chipColors[order.status] ?? chipColors.cancelled;
+  const { t } = useLang();
   return (
     <View style={styles.card}>
       <View style={styles.cardTop}>
@@ -175,13 +232,13 @@ function OrderCard({
           </Text>
         </View>
       </View>
-      <Text style={styles.plate}>ሰሌዳ: {order.plateNumber ?? "—"}</Text>
+      <Text style={styles.plate}>{t("board.plate")}: {order.plateNumber ?? "—"}</Text>
       <Text style={styles.customer}>
         {order.customerNameAm} · {order.customerPhone}
       </Text>
       {order.promisedAt && (
         <Text style={styles.promised}>
-          ተስፋ ቀን: {order.promisedAt.slice(0, 10)}
+          {t("board.promised")}: {order.promisedAt.slice(0, 10)}
         </Text>
       )}
       <OrderOps
@@ -200,11 +257,7 @@ const ADVANCE_NEXT: Record<string, string> = {
   in_progress: "complete",
 };
 
-const ADVANCE_LABEL: Record<string, string> = {
-  inspection: "ምርመራ ግባ",
-  in_progress: "ሥራ ጀምር",
-  complete: "ተጠናቋል",
-};
+
 
 function OrderOps({
   order,
@@ -218,8 +271,9 @@ function OrderOps({
   onDone: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const { t } = useLang();
   const nextTo = ADVANCE_NEXT[order.status];
-  const label = nextTo ? ADVANCE_LABEL[nextTo] : null;
+  const label = nextTo ? t(`act.${nextTo}`) : null;
 
   const advance = async () => {
     if (busy || !nextTo) return;
@@ -267,13 +321,13 @@ function OrderOps({
     order.status === "received" ||
     order.status === "inspection" ||
     order.status === "estimate_declined"
-      ? "ግምት አዘጋጅ"
+      ? t("act.build")
       : null;
   const invoiceLabel =
     order.status === "complete" || order.status === "paid"
       ? order.invoiceId
-        ? "ደረሰኝ እይ"
-        : "ደረሰኝ አዘጋጅ"
+        ? t("act.viewInvoice")
+        : t("act.invoice")
       : null;
 
   if (!label && !buildLabel && !invoiceLabel && order.status !== "estimate_sent")
@@ -291,7 +345,7 @@ function OrderOps({
             busy && styles.disabled,
           ]}
         >
-          <Text style={styles.opText}>{busy ? "በመላክ ላይ…" : label}</Text>
+          <Text style={styles.opText}>{busy ? t("act.busy") : label}</Text>
         </Pressable>
       ) : null}
       {buildLabel ? (
@@ -318,7 +372,7 @@ function OrderOps({
           ]}
         >
           <Text style={[styles.opText, styles.opTextAlt]}>
-            አገናኝ እንደገና ላክ
+            {t("act.resend")}
           </Text>
         </Pressable>
       ) : null}
@@ -368,6 +422,31 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   newOrderText: { color: "#052e1b", fontSize: 12, fontWeight: "700" },
+  titleBtns: { flexDirection: "row", alignItems: "center", gap: 8 },
+  menuBtn: {
+    borderColor: "#3f3f46",
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  menuText: { color: "#a1a1aa", fontSize: 16, fontWeight: "700" },
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "flex-end" },
+  sheet: {
+    backgroundColor: "#111113",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 18,
+    paddingHorizontal: 18,
+    gap: 4,
+  },
+  sheetTitle: { color: "#71717a", fontSize: 13, fontWeight: "600", marginBottom: 8 },
+  menuItem: {
+    paddingVertical: 13,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#262626",
+  },
+  menuItemText: { color: "#fafafa", fontSize: 15, fontWeight: "500" },
   chipsRow: { gap: 8, paddingVertical: 14, paddingRight: 16 },
   filter: {
     borderRadius: 999,

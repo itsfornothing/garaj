@@ -14,12 +14,12 @@ import { apiFetch, apiGet } from "@/lib/api";
 
 const FUELS = [
   { value: "petrol", label: "ነዳጅ" },
-  { value: "diesel", label: "ናፍጣ" },
-  { value: "ev", label: "ኤሌክትሪክ" },
-  { value: "hybrid", label: "ሃይብሪድ" },
-  { value: "plug_in_hybrid", label: "ፕላግ-ኢን ሃይብሪድ" },
-  { value: "cng", label: "ጋዝ (CNG)" },
-  { value: "lpg", label: "ጋዝ (LPG)" },
+  { value: "diesel", label: "ዲዝኤል" },
+  { value: "bev", label: "ኤሌክትሪክ" },
+  { value: "hev", label: "ሃይብሪድ" },
+  { value: "phev", label: "ሃይብሪድ (ፕላግ-ኢን)" },
+  { value: "lpg", label: "ኤልፒጂ" },
+  { value: "other", label: "ሌላ" },
 ];
 
 type VehicleHit = {

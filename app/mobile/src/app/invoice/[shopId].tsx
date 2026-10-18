@@ -14,17 +14,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   apiFetch,
   formatEtb,
-  payMethodAm,
   type InvoicePayload,
 } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 
-const PROVIDERS = [
-  { value: "telebirr", label: "ቴሌብር" },
-  { value: "cbe_birr", label: "CBE Birr" },
-  { value: "ebirr", label: "e-Birr" },
-  { value: "mpesa", label: "M-Pesa" },
-  { value: "card", label: "ካርድ" },
-];
+const PROVIDERS = ["telebirr", "cbe_birr", "ebirr", "mpesa", "card"];
 
 export default function InvoiceScreen() {
   const insets = useSafeAreaInsets();
@@ -39,6 +33,7 @@ export default function InvoiceScreen() {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     let alive = true;
@@ -50,7 +45,7 @@ export default function InvoiceScreen() {
       );
       if (!alive) return;
       if (status === 201 || status === 200) setInv(data);
-      else setError(data.error === "no_approved_version" ? "የተረጋገጠ ግምት የለም።" : "ደረሰኝ መክፈት አልተቻለም።");
+      else setError(data.error === "no_approved_version" ? t("inv.noVersion") : t("inv.openFailed"));
     })();
     return () => {
       alive = false;
@@ -87,8 +82,8 @@ export default function InvoiceScreen() {
     } else {
       setPayError(
         data.error === "already_paid_or_partial"
-          ? "ደረሰኙ ቀድሞ ተከፍሏል።"
-          : "ክፍያው አልተሳካም — እንደገና ይሞክሩ።"
+          ? t("inv.wasPaid")
+          : t("inv.fail")
       );
     }
   };
@@ -100,7 +95,7 @@ export default function InvoiceScreen() {
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Pressable hitSlop={12} onPress={() => router.back()}>
-          <Text style={styles.back}>← ሰሌዳ</Text>
+          <Text style={styles.back}>{t("nav.back")} {t("nav.board")}</Text>
         </Pressable>
         {inv && (
           <View style={styles.chip}>
@@ -123,10 +118,10 @@ export default function InvoiceScreen() {
 
           {paid && (
             <View style={styles.paidBox}>
-              <Text style={styles.paidTitle}>ተከፍሏል ✓</Text>
+              <Text style={styles.paidTitle}>{t("inv.paid")} ✓</Text>
               {lastRef?.providerRef && (
                 <Text style={styles.paidRef}>
-                  {payMethodAm[lastRef.method] ?? lastRef.method} ·{" "}
+                  {t(`pay.${lastRef.method}`)} ·{" "}
                   {lastRef.providerRef}
                 </Text>
               )}
@@ -144,17 +139,17 @@ export default function InvoiceScreen() {
 
           <View style={styles.totals}>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>ድምር</Text>
+              <Text style={styles.totalLabel}>{t("est.subtotal")}</Text>
               <Text style={styles.totalVal}>{formatEtb(Number(inv.subtotalEtb))}</Text>
             </View>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>
-                ቫት/ክፍያ {inv.taxType === "vat_15" ? "15%" : ""}
+                {t("est.tax")} {inv.taxType === "vat_15" ? "15%" : ""}
               </Text>
               <Text style={styles.totalVal}>{formatEtb(Number(inv.taxEtb))}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.grandLabel}>ጠቅላላ</Text>
+              <Text style={styles.grandLabel}>{t("est.total")}</Text>
               <Text style={styles.grandVal}>
                 {formatEtb(Number(inv.totalEtb))} ብር
               </Text>
@@ -163,7 +158,7 @@ export default function InvoiceScreen() {
 
           <View style={styles.qrBox}>
             <Image source={{ uri: inv.qrDataUrl }} style={styles.qr} />
-            <Text style={styles.qrNote}>የሞባይል እይታ ኮድ</Text>
+            <Text style={styles.qrNote}>{t("inv.qr")}</Text>
           </View>
 
           {!paid && view === "invoice" && (
@@ -178,7 +173,7 @@ export default function InvoiceScreen() {
                   busy && styles.disabled,
                 ]}
               >
-                <Text style={styles.payBtnGhostText}>ገንዘብ ተከፍሏል</Text>
+                <Text style={styles.payBtnGhostText}>{t("inv.cash")}</Text>
               </Pressable>
               <Pressable
                 onPress={() => setView("chapa")}
@@ -187,36 +182,34 @@ export default function InvoiceScreen() {
                   pressed && styles.pressed,
                 ]}
               >
-                <Text style={styles.payBtnText}>በቻፓ ይክፈሉ (ዴሞ)</Text>
+                <Text style={styles.payBtnText}>{t("inv.pay")}</Text>
               </Pressable>
             </View>
           )}
 
           {!paid && view === "chapa" && (
             <View style={styles.chapaBox}>
-              <Text style={styles.chapaTitle}>ቻፓ ትርጓሜ (ዴሞ)</Text>
-              <Text style={styles.chapaNote}>
-                ይህ የተመሳሳይ (ዴሞ) ክፍያ ነው — እውነተኛ ቻፓ በG4 ይገናኛል።
-              </Text>
-              <Text style={styles.fieldLabel}>የመክፈያ አቅርቦት</Text>
+              <Text style={styles.chapaTitle}>{t("inv.pay")}</Text>
+              <Text style={styles.chapaNote}>{t("inv.mockNote")}</Text>
+              <Text style={styles.fieldLabel}>{t("inv.provider")}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <View style={styles.chips}>
                   {PROVIDERS.map((p) => (
                     <Pressable
-                      key={p.value}
-                      onPress={() => setProvider(p.value)}
+                      key={p}
+                      onPress={() => setProvider(p)}
                       style={[
                         styles.pchip,
-                        provider === p.value && styles.pchipActive,
+                        provider === p && styles.pchipActive,
                       ]}
                     >
                       <Text
                         style={[
                           styles.pchipText,
-                          provider === p.value && styles.pchipTextActive,
+                          provider === p && styles.pchipTextActive,
                         ]}
                       >
-                        {p.label}
+                        {t(`pay.${p}`)}
                       </Text>
                     </Pressable>
                   ))}
@@ -224,7 +217,7 @@ export default function InvoiceScreen() {
               </ScrollView>
               {provider !== "card" && (
                 <>
-                  <Text style={styles.fieldLabel}>ሃዋላ ስልክ ቁጥር</Text>
+                  <Text style={styles.fieldLabel}>{t("inv.phone")}</Text>
                   <TextInput
                     value={phone}
                     onChangeText={(t) =>
@@ -252,7 +245,7 @@ export default function InvoiceScreen() {
                     busy && styles.disabled,
                   ]}
                 >
-                  <Text style={styles.payBtnGhostText}>ወደ ኋላ</Text>
+                  <Text style={styles.payBtnGhostText}>{t("inv.back")}</Text>
                 </Pressable>
                 <Pressable
                   disabled={busy || (provider !== "card" && phone.length < 9)}
@@ -265,7 +258,7 @@ export default function InvoiceScreen() {
                   ]}
                 >
                   <Text style={styles.payBtnText}>
-                    {busy ? "በማስተላለፍ ላይ…" : "ክፍያ አረጋግጥ"}
+                    {busy ? t("inv.processing") : t("inv.confirm")}
                   </Text>
                 </Pressable>
               </View>

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { apiFetch, formatEtb, type EstimateDemo } from "@/lib/api";
+import { useLang } from "@/lib/i18n";
 
 type Decision = "approved_all" | "approved_lines" | "declined";
 
@@ -40,6 +41,7 @@ export default function EstimateScreen() {
   );
   const [pinError, setPinError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     if (!token) {
@@ -104,7 +106,7 @@ export default function EstimateScreen() {
     }
     if (status === 400 && res.error === "last4_mismatch") {
       setPinError(
-        `${res.messageAm ?? "የስልክ ቁጥርዎ የመጨረሻዎቹ 4 አይመስሉም።"}${res.remaining !== undefined ? ` (እስከ ${res.remaining} ሙከራ)` : ""}`
+        `${res.messageAm ?? t("cust.wrongPin")}${res.remaining !== undefined ? ` (${res.remaining})` : ""}`
       );
       return;
     }
@@ -115,15 +117,15 @@ export default function EstimateScreen() {
 
   const taxLabel =
     data?.taxType === "vat_15"
-      ? "ቫት 15%"
+      ? t("est.taxV")
       : data?.taxType === "tot_10_2"
-        ? "ታክስ በአገልግሎት 10%"
+        ? t("est.taxT")
         : data?.taxType ?? "";
 
   const gateCopy: Record<Exclude<Gate, null>, string> = {
-    invalid: "የማገናኛው ትክክል አይደለም። ይህ ማገናኛ አልተጠቀመም ወይም ተሠርዟል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
-    expired: "የማገናኛው ጊዜ አልቋል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
-    locked: "ብዙ ውድቅ መረጃ በመጣቡ ላይ ነው — ለ15 ደቂቃ ይህ ማገናኛ ተቀናቅቧል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።",
+    invalid: t("cust.badLinkB"),
+    expired: t("cust.expiredB"),
+    locked: t("cust.lockedB"),
   };
 
   return (
@@ -135,7 +137,7 @@ export default function EstimateScreen() {
       ]}
     >
       <Pressable hitSlop={12} onPress={() => router.back()}>
-        <Text style={styles.back}>← ጋራዥ</Text>
+        <Text style={styles.back}>{t("nav.back")} {t("nav.brand")}</Text>
       </Pressable>
 
       {gate === null && !data && (
@@ -151,10 +153,10 @@ export default function EstimateScreen() {
       {data && (
         <>
           <View style={styles.titleRow}>
-            <Text style={styles.h1}>የጥገና ግምት</Text>
+            <Text style={styles.h1}>{t("est.title")}</Text>
             <View style={[styles.revisionChip, expired && styles.revisionExpired]}>
               <Text style={expired ? styles.revisionExpiredText : styles.revisionText}>
-                {expired ? "ጊዜ አልቋል" : "ግምት ተቀብላችኋል"}
+                {expired ? t("cust.expired") : t("cust.ready")}
               </Text>
             </View>
           </View>
@@ -164,7 +166,7 @@ export default function EstimateScreen() {
               <Text style={styles.vehicle}>
                 {data.make} {data.model}
               </Text>
-              <Text style={styles.plate}>ሰሌዳ {data.plateNumber ?? "—"}</Text>
+              <Text style={styles.plate}>{t("board.plate")} {data.plateNumber ?? "—"}</Text>
             </View>
             <Text style={styles.shopLine}>
               {data.shopName} · ለ{data.customerNameAm}
@@ -174,7 +176,7 @@ export default function EstimateScreen() {
           {expired ? (
             <View style={styles.expiredBox}>
               <Text style={styles.expiredText}>
-                የማገናኛው ጊዜ አልቋል። ጋራዥዎን ደውለው አዲስ አገናኝ እንዲልክ ጠይቁ።
+                {t("cust.expiredB")}
               </Text>
             </View>
           ) : (
@@ -198,7 +200,7 @@ export default function EstimateScreen() {
                         <Text style={styles.lineName}>
                           {l.nameAm}
                           <Text style={styles.lineKind}>
-                            {l.kind === "service" ? "  ሥራ" : "  ምርት"}
+                            {l.kind === "service" ? `  ${t("cust.kindService")}` : `  ${t("cust.kindPart")}`}
                           </Text>
                         </Text>
                         <Text style={styles.lineSub}>
@@ -213,32 +215,32 @@ export default function EstimateScreen() {
                 })}
                 <View style={styles.totals}>
                   <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>ጠቅላላ</Text>
+                    <Text style={styles.totalLabel}>{t("est.subtotal")}</Text>
                     <Text style={styles.totalValue}>
                       {formatEtb(Number(data.subtotalEtb))} ብር
                     </Text>
                   </View>
                   <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>ታክስ ({taxLabel})</Text>
+                    <Text style={styles.totalLabel}>{t("est.tax")} ({taxLabel})</Text>
                     <Text style={styles.totalValue}>
                       {formatEtb(Number(data.taxEtb))} ብር
                     </Text>
                   </View>
                   <View style={[styles.totalRow, styles.totalGrand]}>
-                    <Text style={styles.totalGrandLabel}>ጠቅላላ ለመክፈል</Text>
+                    <Text style={styles.totalGrandLabel}>{t("est.total")}</Text>
                     <Text style={styles.totalGrandValue}>
                       {formatEtb(Number(data.totalEtb))} ብር
                     </Text>
                   </View>
                   <Text style={styles.demoNote}>
-                    የመረጡት መስመሮች ብቻ ተፈቅደዋል — ቀሩት ለወደፊት ወስነው ይሰጣሉ።
+                    {t("cust.deferNote")}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.card}>
                 <Text style={styles.pinLabel}>
-                  የስልክ ቁጥርዎ የመጨረሻ 4 አሃዞች
+                  {t("cust.pinLabel")}
                 </Text>
                 <TextInput
                   value={last4}
@@ -261,11 +263,11 @@ export default function EstimateScreen() {
                 <View style={styles.decisionBox}>
                   <Text style={styles.decisionText}>
                     {decision.kind === "declined"
-                      ? "ግምቱ እምቢ ተብሎ ተመዝግቧል። ጋራዥዎ በቅርቡ ተለዋጭ አማራጭ ገልጸልዎታል።"
-                      : `ፈቃድዎ ተመዝግቧል — ${decision.kind === "approved_all" ? "ሙሉ ግምት" : `${decision.lines} መስመሮች`}። ጋራዥዎ ሥራውን ይጀምራል፣ ሲጠናቅ ስልክ እንዲደርስዎ ይላከል።`}
+                      ? t("cust.declined")
+                      : t("cust.thanks")}
                   </Text>
                   <Text style={styles.decisionNote}>
-                    ፈቃድዎ በደህንነቱ ተጠብቆ ተመዝግቧል።
+                    {t("cust.secure")}
                   </Text>
                 </View>
               ) : (
@@ -287,10 +289,10 @@ export default function EstimateScreen() {
                   >
                     <Text style={styles.approveText}>
                       {busy
-                        ? "በመመዝገብ ላይ…"
+                        ? t("cust.busy")
                         : selected.size === data.lines.length
-                          ? "ሙሉ ግምት ፈቅድ"
-                          : `${selected.size} መስመሮችን ብቻ ፈቅድ`}
+                          ? t("cust.approveAll")
+                          : `${t("cust.approveSel")} (${selected.size})`}
                     </Text>
                   </Pressable>
                   <Pressable
@@ -302,7 +304,7 @@ export default function EstimateScreen() {
                     ]}
                     onPress={() => attempt("declined")}
                   >
-                    <Text style={styles.declineText}>ፈቅዳም እምቢ</Text>
+                    <Text style={styles.declineText}>{t("cust.declineAll")}</Text>
                   </Pressable>
                 </>
               )}

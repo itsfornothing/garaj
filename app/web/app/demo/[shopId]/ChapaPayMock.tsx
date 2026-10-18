@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { apiJson } from "../../lib/api";
+import { useLang } from "../../lib/i18n";
 
 const PROVIDERS = [
-  { value: "telebirr", label: "ቴሌብር" },
-  { value: "cbe_birr", label: "CBE Birr" },
-  { value: "ebirr", label: "e-Birr" },
-  { value: "mpesa", label: "M-Pesa" },
-  { value: "card", label: "ካርድ (Visa/Mastercard)" },
+  { value: "telebirr", key: "pay.telebirr" },
+  { value: "cbe_birr", key: "pay.cbe_birr" },
+  { value: "ebirr", key: "pay.ebirr" },
+  { value: "mpesa", key: "pay.mpesa" },
+  { value: "card", key: "pay.card" },
 ];
 
 export default function ChapaPayMock({
@@ -31,6 +32,7 @@ export default function ChapaPayMock({
   const [step, setStep] = useState<"form" | "processing" | "done">("form");
   const [error, setError] = useState<string | null>(null);
   const [ref, setRef] = useState<string | null>(null);
+  const { t } = useLang();
 
   async function confirm() {
     if (step !== "form") return;
@@ -53,7 +55,7 @@ export default function ChapaPayMock({
       return;
     }
     setStep("form");
-    setError(status === 409 ? "ደረሰኙ ተከፍሏል።" : "ክፍያው አልተሳካም — እንደገና ይሞክሩ።");
+    setError(status === 409 ? t("inv.wasPaid") : t("inv.fail"));
   }
 
   if (step === "done") {
@@ -61,7 +63,7 @@ export default function ChapaPayMock({
       <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 text-center dark:border-emerald-500/30 dark:bg-emerald-500/10">
         <p className="text-2xl">✓</p>
         <p className="mt-1 font-medium text-emerald-800 dark:text-emerald-300">
-          ተከፍሏል — {Number(totalEtb).toLocaleString("am-ET")} ብር
+          {t("inv.paid")} — {Number(totalEtb).toLocaleString("am-ET")} ብር
         </p>
         <p className="mt-1 font-mono text-xs text-emerald-700 dark:text-emerald-400">
           {invoiceNumber} · {ref}
@@ -75,7 +77,7 @@ export default function ChapaPayMock({
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-            ቻፓ ትርጓሜ (ዴሞ)
+            {t("inv.pay")}
           </p>
           <p className="text-xs text-zinc-400">
             {invoiceNumber} · {Number(totalEtb).toLocaleString("am-ET")} ብር
@@ -87,7 +89,7 @@ export default function ChapaPayMock({
       </div>
 
       <label className="mt-3 block text-xs font-medium text-zinc-600 dark:text-zinc-300">
-        የመክፈያ አቅርቦት
+        {t("inv.provider")}
       </label>
       <select
         value={provider}
@@ -97,7 +99,7 @@ export default function ChapaPayMock({
       >
         {PROVIDERS.map((p) => (
           <option key={p.value} value={p.value}>
-            {p.label}
+            {t(p.key)}
           </option>
         ))}
       </select>
@@ -105,7 +107,7 @@ export default function ChapaPayMock({
       {provider !== "card" && (
         <>
           <label className="mt-2 block text-xs font-medium text-zinc-600 dark:text-zinc-300">
-            ሃዋላ ስልክ ቁጥር
+            {t("inv.phone")}
           </label>
           <input
             value={phone}
@@ -129,7 +131,7 @@ export default function ChapaPayMock({
       )}
 
       <p className="mt-2 text-[11px] leading-4 text-zinc-400">
-        ይህ የተመሳሳይ (ዴሞ) ክፍያ ነው — እውነተኛ ቻፓ በG4 ይገናኛል።
+        {t("inv.mockNote")}
       </p>
 
       <div className="mt-3 flex gap-2">
@@ -138,14 +140,14 @@ export default function ChapaPayMock({
           disabled={step === "processing"}
           className="rounded-xl border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-600 transition-transform duration-150 ease-out active:scale-[0.97] dark:border-zinc-700 dark:text-zinc-400"
         >
-          ወደ ኋላ
+          {t("inv.back")}
         </button>
         <button
           onClick={confirm}
           disabled={step === "processing" || (provider !== "card" && phone.length < 9)}
           className="flex-1 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-transform duration-150 ease-out hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
         >
-          {step === "processing" ? "በማስተላለፍ ላይ…" : "ክፍያ አረጋግጥ"}
+          {step === "processing" ? t("inv.processing") : t("inv.confirm")}
         </button>
       </div>
     </div>

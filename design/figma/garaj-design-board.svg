@@ -1,0 +1,255 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1160" viewBox="0 0 1600 1160" font-family="-apple-system, 'SF Pro Text', 'Noto Sans Ethiopic', sans-serif">
+  <defs>
+    <clipPath id="webClip"><rect x="0" y="0" width="880" height="560" rx="14"/></clipPath>
+    <clipPath id="mobClip"><rect x="0" y="0" width="300" height="620" rx="28"/></clipPath>
+  </defs>
+
+  <rect width="1600" height="1160" fill="#0a0a0b"/>
+
+  <!-- ============ TITLE ============ -->
+  <text x="60" y="66" fill="#fafafa" font-size="26" font-weight="700">ጋራዥ GarAj — design board</text>
+  <text x="60" y="88" fill="#71717a" font-size="13">Dark-first · Amharic-first (አማ | EN toggle) · Ethiopian green accent · v1, Oct 2026</text>
+
+  <!-- ============ TOKENS / FOUNDATIONS ============ -->
+  <text x="60" y="150" fill="#a1a1aa" font-size="12" font-weight="600" letter-spacing="1">FOUNDATIONS</text>
+
+  <!-- color swatches -->
+  <g>
+    <rect x="60" y="170" width="76" height="56" rx="10" fill="#10b981"/>
+    <rect x="142" y="170" width="76" height="56" rx="10" fill="#059669"/>
+    <rect x="224" y="170" width="76" height="56" rx="10" fill="#111113" stroke="#262626"/>
+    <rect x="306" y="170" width="76" height="56" rx="10" fill="#1c1c1f" stroke="#34343a"/>
+    <rect x="388" y="170" width="76" height="56" rx="10" fill="#a1a1aa"/>
+    <rect x="470" y="170" width="76" height="56" rx="10" fill="#fafafa"/>
+    <rect x="552" y="170" width="76" height="56" rx="10" fill="#8b5cf6"/>
+    <rect x="634" y="170" width="76" height="56" rx="10" fill="#fbbf24"/>
+    <text x="60" y="244" fill="#71717a" font-size="11">--accent #10b981 · #059669 · surface #111113 · raised #1c1c1f · muted #a1a1aa · text #fafafa · violet (est) · amber (warn)</text>
+  </g>
+
+  <!-- type scale -->
+  <g>
+    <text x="60" y="286" fill="#fafafa" font-size="26" font-weight="700">ጋራዥ ጋራዥ</text><text x="220" y="286" fill="#52525b" font-size="11">Title 26/700, tracking -0.3</text>
+    <text x="420" y="286" fill="#fafafa" font-size="17" font-weight="600">ሰሌዳ</text><text x="540" y="286" fill="#52525b" font-size="11">17/600</text>
+    <text x="640" y="286" fill="#a1a1aa" font-size="13">ምርመራ ላይ</text><text x="800" y="286" fill="#52525b" font-size="11">Body 13/400 — Amharic needs +2px leading</text>
+  </g>
+
+  <!-- motion + interaction -->
+  <g>
+    <rect x="60" y="312" width="180" height="46" rx="12" fill="#10b981"/><text x="150" y="340" fill="#052e1b" font-size="13" font-weight="700" text-anchor="middle">.press</text>
+    <rect x="252" y="312" width="180" height="46" rx="12" fill="#111113" stroke="#262626"/><text x="342" y="340" fill="#a1a1aa" font-size="13" font-weight="600" text-anchor="middle">.enter (220ms, 40ms stag)</text>
+    <rect x="444" y="312" width="180" height="46" rx="12" fill="#18181b" stroke="#3f3f46"/><text x="534" y="340" fill="#a1a1aa" font-size="13" text-anchor="middle">.glass bar (blur + hairline)</text>
+    <text x="640" y="326" fill="#71717a" font-size="11">ease-out cubic-bezier(0.23,1,0.32,1) · scale .97 on press</text>
+    <text x="640" y="344" fill="#52525b" font-size="11">prefers-reduced-motion → 120ms crossfade only</text>
+  </g>
+
+  <!-- ============ WEB WORKSPACE 880x560 ============ -->
+  <text x="60" y="412" fill="#a1a1aa" font-size="12" font-weight="600" letter-spacing="1">WEB — WORKSPACE (board · invoices · audit tabs)</text>
+  <rect x="60" y="430" width="880" height="560" rx="14" fill="#0c0c0d" stroke="#262626"/>
+
+  <g clip-path="url(#webClip)">
+    <!-- glass top bar -->
+    <rect x="60" y="430" width="880" height="52" fill="#111114" opacity="0.72"/>
+    <line x1="60" y1="482" x2="940" y2="482" stroke="#262626" stroke-width="0.5"/>
+    <circle cx="86" cy="456" r="7" fill="#10b981"/>
+    <text x="100" y="461" fill="#fafafa" font-size="14" font-weight="700">ጋራዥ</text>
+    <text x="170" y="461" fill="#71717a" font-size="12">ሠላም ጋራዥ</text>
+    <!-- tabs -->
+    <text x="330" y="461" fill="#fafafa" font-size="12.5" font-weight="600">ሰሌዳ</text>
+    <line x1="330" y1="470" x2="368" y2="470" stroke="#10b981" stroke-width="2"/>
+    <text x="410" y="461" fill="#71717a" font-size="12.5">ደረሰኞች</text>
+    <text x="496" y="461" fill="#71717a" font-size="12.5">ታሪክ</text>
+    <!-- shop switcher + toggle -->
+    <rect x="706" y="446" width="120" height="24" rx="7" fill="#1c1c1f"/><text x="716" y="462" fill="#a1a1aa" font-size="11">ሠላም ጋራዥ ▾</text>
+    <rect x="838" y="446" width="70" height="24" rx="12" fill="#111113" stroke="#262626"/><text x="873" y="462" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">አማ | EN</text>
+
+    <!-- filter chips -->
+    <g>
+      <rect x="76" y="500" width="52" height="24" rx="12" fill="#10b981"/><text x="102" y="516" fill="#052e1b" font-size="11" font-weight="600" text-anchor="middle">ሁሉም</text>
+      <rect x="136" y="500" width="52" height="24" rx="12" fill="#0c0c0d" stroke="#3f3f46"/><text x="162" y="516" fill="#a1a1aa" font-size="11" text-anchor="middle">ምርመራ</text>
+      <rect x="196" y="500" width="52" height="24" rx="12" fill="#0c0c0d" stroke="#3f3f46"/><text x="222" y="516" fill="#a1a1aa" font-size="11" text-anchor="middle">ፈቃድ</text>
+      <rect x="256" y="500" width="52" height="24" rx="12" fill="#0c0c0d" stroke="#3f3f46"/><text x="282" y="516" fill="#a1a1aa" font-size="11" text-anchor="middle">ሥራ ላይ</text>
+    </g>
+
+    <!-- board columns -->
+    <g>
+      <text x="86" y="556" fill="#a1a1aa" font-size="11" font-weight="600">ተቀብሎ · 2</text>
+      <rect x="76" y="568" width="196" height="128" rx="12" fill="#111113" stroke="#262626"/>
+      <text x="90" y="590" fill="#fafafa" font-size="13" font-weight="600">Toyota Corolla</text>
+      <rect x="230" y="580" width="34" height="16" rx="8" fill="rgba(63,63,70,0.5)"/><text x="247" y="592" fill="#d4d4d8" font-size="9" text-anchor="middle">ተቀብሎ</text>
+      <text x="90" y="610" fill="#71717a" font-size="11">ሰሌዳ 3-A-78123</text>
+      <text x="90" y="628" fill="#d4d4d8" font-size="11">ሰሎሞን አንድሳ · ስልክ …0111</text>
+      <rect x="90" y="646" width="74" height="22" rx="8" fill="#10b981"/><text x="127" y="661" fill="#052e1b" font-size="10" font-weight="600" text-anchor="middle">ምርመራ ግባ</text>
+      <rect x="170" y="646" width="60" height="22" rx="8" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.4)"/><text x="200" y="661" fill="#c4b5fd" font-size="10" text-anchor="middle">ግምት</text>
+
+      <text x="306" y="556" fill="#a1a1aa" font-size="11" font-weight="600">ግምት ተላከ · 2</text>
+      <rect x="296" y="568" width="196" height="128" rx="12" fill="#111113" stroke="#262626"/>
+      <text x="310" y="590" fill="#fafafa" font-size="13" font-weight="600">Mercedes c350e</text>
+      <rect x="444" y="580" width="36" height="16" rx="8" fill="rgba(139,92,246,0.18)"/><text x="462" y="592" fill="#c4b5fd" font-size="9" text-anchor="middle">ግምት</text>
+      <text x="310" y="610" fill="#71717a" font-size="11">ሰሌዳ 2-B-45010</text>
+      <text x="310" y="628" fill="#d4d4d8" font-size="11">ብርቱካን ሀብታሙ · ስልክ …1222</text>
+      <rect x="310" y="646" width="70" height="22" rx="8" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.4)"/><text x="345" y="661" fill="#c4b5fd" font-size="10" text-anchor="middle">እንደገና ላክ</text>
+
+      <text x="526" y="556" fill="#a1a1aa" font-size="11" font-weight="600">ሥራ ላይ · 1</text>
+      <rect x="516" y="568" width="196" height="128" rx="12" fill="#111113" stroke="#262626"/>
+      <text x="530" y="590" fill="#fafafa" font-size="13" font-weight="600">Toyota Corolla</text>
+      <rect x="656" y="580" width="40" height="16" rx="8" fill="rgba(16,185,129,0.16)"/><text x="676" y="592" fill="#34d399" font-size="9" text-anchor="middle">ሥራ ላይ</text>
+      <text x="530" y="610" fill="#71717a" font-size="11">ሰሌዳ 3-A-78123</text>
+      <text x="530" y="628" fill="#d4d4d8" font-size="11">ተስፋ ቀን: 2019-02-15</text>
+      <rect x="530" y="646" width="74" height="22" rx="8" fill="#10b981"/><text x="567" y="661" fill="#052e1b" font-size="10" font-weight="600" text-anchor="middle">ተጠናቋል</text>
+
+      <text x="746" y="556" fill="#a1a1aa" font-size="11" font-weight="600">ተከፍሏል · 1</text>
+      <rect x="736" y="568" width="186" height="128" rx="12" fill="#111113" stroke="#262626"/>
+      <text x="750" y="590" fill="#fafafa" font-size="13" font-weight="600">Mercedes c350e</text>
+      <rect x="854" y="580" width="52" height="16" rx="8" fill="rgba(16,185,129,0.16)"/><text x="880" y="592" fill="#34d399" font-size="9" text-anchor="middle">ተከፍሏል</text>
+      <text x="750" y="610" fill="#71717a" font-size="11">INV-2019/00004</text>
+      <text x="750" y="628" fill="#d4d4d8" font-size="11">1,930.03 ብር · ቻፓ (ዴሞ)</text>
+      <rect x="750" y="646" width="66" height="22" rx="8" fill="#0c0c0d" stroke="#3f3f46"/><text x="783" y="661" fill="#a1a1aa" font-size="10" text-anchor="middle">ደረሰኝ እይ</text>
+    </g>
+
+    <!-- invoice tab preview -->
+    <g>
+      <rect x="76" y="716" width="408 " height="180" rx="12" fill="#111113" stroke="#262626"/>
+      <text x="92" y="738" fill="#fafafa" font-size="12" font-weight="700">ደረሰኞች</text>
+      <text x="92" y="758" fill="#a1a1aa" font-size="11">INV-2019/00003 · ሰሎሞን አንድሳ</text>
+      <text x="452" y="758" fill="#34d399" font-size="11" text-anchor="end">990.00 ብር · ተከፍሏል</text>
+      <line x1="92" y1="770" x2="468" y2="770" stroke="#262626" stroke-width="0.5"/>
+      <text x="92" y="792" fill="#a1a1aa" font-size="11">INV-2019/00002 · ብርቱካን ሀብታሙ</text>
+      <text x="452" y="792" fill="#fbbf24" font-size="11" text-anchor="end">1,540.00 ብር · ቀርቧል</text>
+      <line x1="92" y1="804" x2="468" y2="804" stroke="#262626" stroke-width="0.5"/>
+      <text x="92" y="826" fill="#52525b" font-size="10">ET fiscal numbers · QR receipt code · JOIN customers+vehicles</text>
+
+      <rect x="508" y="716" width="416" height="180" rx="12" fill="#111113" stroke="#262626"/>
+      <text x="524" y="738" fill="#fafafa" font-size="12" font-weight="700">ታሪክ (audit)</text>
+      <circle cx="530" cy="756" r="3.5" fill="#10b981"/><text x="542" y="760" fill="#e4e4e7" font-size="11">ክፍያ ተመዝግቧል · invoices · chapa</text>
+      <circle cx="530" cy="782" r="3.5" fill="#8b5cf6"/><text x="542" y="786" fill="#e4e4e7" font-size="11">ደንበኛው ውሳኔ ሰጠ · estimate_versions</text>
+      <circle cx="530" cy="808" r="3.5" fill="#8b5cf6"/><text x="542" y="812" fill="#e4e4e7" font-size="11">ግምት ተልኗል · estimate_versions</text>
+      <circle cx="530" cy="834" r="3.5" fill="#52525b"/><text x="542" y="838" fill="#e4e4e7" font-size="11">አዲስ ሥራ ተቀብለናል · orders</text>
+      <text x="524" y="862" fill="#52525b" font-size="10">Global shop wall · last 60 · actor · channel · before/after kept in DB</text>
+    </g>
+  </g>
+
+  <!-- ============ MOBILE FRAMES ============ -->
+  <g transform="translate(1000,150)">
+    <text y="-20" fill="#a1a1aa" font-size="12" font-weight="600" letter-spacing="1">MOBILE — BOARD + MENU + INVOICE</text>
+
+    <!-- phone 1: board -->
+    <g transform="translate(0,0)">
+      <rect width="300" height="620" rx="28" fill="#0c0c0d" stroke="#262626"/>
+      <rect x="40" y="18" width="220" height="44" fill="none"/>
+      <text x="20" y="48" fill="#71717a" font-size="12">← ጋራዥ</text>
+      <rect x="212" y="36" width="68" height="18" rx="9" fill="#1c1c1f"/><text x="246" y="49" fill="#a1a1aa" font-size="10" text-anchor="middle">ኤቪ · ቫት</text>
+      <text x="20" y="92" fill="#fafafa" font-size="19" font-weight="700">ሠላም ጋራዥ</text>
+      <rect x="232" y="76" width="48" height="22" rx="8" fill="#10b981"/><text x="256" y="90" fill="#052e1b" font-size="9" font-weight="700" text-anchor="middle">አዲስ</text>
+      <rect x="284" y="74" width="0" height="0"/>
+      <rect x="20" y="120" width="42" height="22" rx="11" fill="#10b981"/><text x="41" y="135" fill="#052e1b" font-size="10" font-weight="600" text-anchor="middle">ሁሉም</text>
+      <rect x="70" y="120" width="46" height="22" rx="11" fill="#0c0c0d" stroke="#3f3f46"/><text x="93" y="135" fill="#a1a1aa" font-size="10" text-anchor="middle">ምርመራ</text>
+      <rect x="124" y="120" width="46" height="22" rx="11" fill="#0c0c0d" stroke="#3f3f46"/><text x="147" y="135" fill="#a1a1aa" font-size="10" text-anchor="middle">ፈቃድ</text>
+
+      <rect x="20" y="156" width="260" height="104" rx="14" fill="#111113" stroke="#262626"/>
+      <text x="34" y="180" fill="#fafafa" font-size="13" font-weight="600">Toyota Corolla</text>
+      <rect x="216" y="168" width="50" height="17" rx="9" fill="rgba(63,63,70,0.5)"/><text x="241" y="181" fill="#d4d4d8" font-size="8.5" text-anchor="middle">ተቀብሎ</text>
+      <text x="34" y="200" fill="#71717a" font-size="11">ሰሌዳ: 3-A-78123</text>
+      <text x="34" y="218" fill="#d4d4d8" font-size="11">ሰሎሞን አንድሳ · ስልክ 09…0111</text>
+      <rect x="34" y="230" width="72" height="20" rx="8" fill="#10b981"/><text x="70" y="244" fill="#052e1b" font-size="9.5" font-weight="600" text-anchor="middle">ምርመራ ግባ</text>
+      <rect x="112" y="230" width="56" height="20" rx="8" fill="rgba(139,92,246,0.15)" stroke="rgba(139,92,246,0.4)"/><text x="140" y="244" fill="#c4b5fd" font-size="9.5" text-anchor="middle">ግምት</text>
+
+      <rect x="20" y="270" width="260" height="104" rx="14" fill="#111113" stroke="#262626"/>
+      <text x="34" y="294" fill="#fafafa" font-size="13" font-weight="600">Mercedes c350e</text>
+      <rect x="216" y="282" width="50" height="17" rx="9" fill="rgba(139,92,246,0.18)"/><text x="241" y="295" fill="#c4b5fd" font-size="8.5" text-anchor="middle">ግምት ተላከ</text>
+      <text x="34" y="314" fill="#71717a" font-size="11">ሰሌዳ: 2-B-45010</text>
+      <text x="34" y="332" fill="#d4d4d8" font-size="11">ብርቱካን ሀብታሙ · ስልክ 09…1222</text>
+      <rect x="34" y="344" width="60" height="20" rx="8" fill="#10b981"/><text x="64" y="358" fill="#052e1b" font-size="9.5" font-weight="600" text-anchor="middle">ሥራ ጀምር</text>
+
+      <!-- bottom sheet menu -->
+      <rect x="0" y="400" width="300" height="220" rx="0" fill="rgba(0,0,0,0.55)"/>
+      <rect x="0" y="404" width="300" height="216" fill="#111113"/>
+      <path d="M0 404 Q0 404 0 404" stroke="none"/>
+      <rect x="0" y="404" width="300" height="0"/>
+      <text x="24" y="428" fill="#71717a" font-size="11" font-weight="600">ሠላም ጋራዥ</text>
+      <text x="24" y="456" fill="#fafafa" font-size="14" font-weight="500">ደረሰኞች</text>
+      <line x1="24" y1="468" x2="276" y2="468" stroke="#262626" stroke-width="0.5"/>
+      <text x="24" y="490" fill="#fafafa" font-size="14" font-weight="500">ታሪክ</text>
+      <line x1="24" y1="502" x2="276" y2="502" stroke="#262626" stroke-width="0.5"/>
+      <text x="24" y="524" fill="#fafafa" font-size="14" font-weight="500">English</text>
+      <line x1="24" y1="536" x2="276" y2="536" stroke="#262626" stroke-width="0.5"/>
+      <text x="24" y="560" fill="#52525b" font-size="10">⋯ opens here (fade 160ms, rows tap→route)</text>
+    </g>
+
+    <!-- phone 2: invoice -->
+    <g transform="translate(360,0)">
+      <rect width="300" height="620" rx="28" fill="#0c0c0d" stroke="#262626"/>
+      <text x="20" y="48" fill="#71717a" font-size="12">← ሰሌዳ</text>
+      <rect x="216" y="36" width="64" height="18" rx="9" fill="#1c1c1f"/><text x="248" y="49" fill="#a1a1aa" font-size="10" text-anchor="middle">INV…0004</text>
+      <text x="20" y="80" fill="#d4d4d8" font-size="12">ሰሎሞን አንድሳ · Toyota Corolla</text>
+
+      <rect x="20" y="92" width="260" height="34" rx="10" fill="#053B29"/>
+      <text x="34" y="114" fill="#6EE7B7" font-size="13" font-weight="700">ተከፍሏል ✓</text>
+      <text x="266" y="114" fill="#a7f3d0" font-size="10" text-anchor="end">ቴሌብር · CHAPA-DEMO-…</text>
+
+      <text x="20" y="152" fill="#e4e4e7" font-size="12">ብሬክ ፓድ × 2</text><text x="280" y="152" fill="#a1a1aa" font-size="12" text-anchor="end">1,184.00</text>
+      <text x="20" y="176" fill="#e4e4e7" font-size="12">ፊት ሥራ · ብሬክ ማቆሚያ</text><text x="280" y="176" fill="#a1a1aa" font-size="12" text-anchor="end">600.00</text>
+      <line x1="20" y1="196" x2="280" y2="196" stroke="#262626" stroke-width="0.5"/>
+      <text x="20" y="216" fill="#71717a" font-size="12">ድምር</text><text x="280" y="216" fill="#d4d4d8" font-size="12" text-anchor="end">1,784.00</text>
+      <text x="20" y="238" fill="#71717a" font-size="12">ቫት/ክፍያ 15%</text><text x="280" y="238" fill="#d4d4d8" font-size="12" text-anchor="end">146.03</text>
+      <text x="20" y="268" fill="#fafafa" font-size="14" font-weight="700">ጠቅላላ</text><text x="280" y="268" fill="#10b981" font-size="14" font-weight="700" text-anchor="end">1,930.03 ብር</text>
+
+      <rect x="95" y="290" width="110" height="110" rx="8" fill="#ffffff"/>
+      <g fill="#0a0a0a">
+        <rect x="105" y="300" width="12" height="12"/><rect x="125" y="300" width="8" height="12"/><rect x="141" y="300" width="12" height="6"/><rect x="161" y="300" width="8" height="6"/><rect x="177" y="300" width="12" height="12"/>
+        <rect x="105" y="320" width="6" height="8"/><rect x="119" y="320" width="10" height="8"/><rect x="153" y="320" width="6" height="8"/><rect x="171" y="320" width="10" height="8"/><rect x="185" y="320" width="6" height="8"/>
+        <rect x="105" y="336" width="12" height="6"/><rect x="129" y="336" width="6" height="6"/><rect x="149" y="336" width="8" height="6"/><rect x="169" y="336" width="12" height="6"/>
+        <rect x="105" y="350" width="6" height="10"/><rect x="123" y="350" width="8" height="10"/><rect x="143" y="350" width="6" height="10"/><rect x="161" y="350" width="10" height="10"/><rect x="179" y="350" width="8" height="10"/>
+        <rect x="105" y="368" width="8" height="12"/><rect x="125" y="368" width="12" height="12"/><rect x="149" y="368" width="6" height="6"/><rect x="167" y="368" width="8" height="12"/><rect x="183" y="368" width="12" height="12"/>
+      </g>
+      <text x="150" y="424" fill="#52525b" font-size="10" text-anchor="middle">የሞባይል እይታ ኮድ</text>
+
+      <rect x="20" y="452" width="124" height="40" rx="12" fill="#0c0c0d" stroke="#3f3f46"/><text x="82" y="477" fill="#a1a1aa" font-size="12" font-weight="600" text-anchor="middle">ገንዘብ ተከፍሏል</text>
+      <rect x="156" y="452" width="124" height="40" rx="12" fill="#10b981"/><text x="218" y="477" fill="#052e1b" font-size="12" font-weight="700" text-anchor="middle">ቻፓ (ዴሞ)</text>
+      <text x="20" y="516" fill="#52525b" font-size="10">Chapa demo sheet: providers ቴሌብር · CBE · e-Birr · M-Pesa · ካርድ</text>
+      <text x="20" y="534" fill="#52525b" font-size="10">processing beat 700ms → green receipt CHAPA-DEMO-…</text>
+      <text x="20" y="570" fill="#3f3f46" font-size="10">double-pay → 409 already_paid_or_partial ✓</text>
+    </g>
+
+    <!-- phone 3: estimate (customer) -->
+    <g transform="translate(720,0)">
+      <rect width="300" height="620" rx="28" fill="#0c0c0d" stroke="#262626"/>
+      <text x="20" y="48" fill="#71717a" font-size="12">← ጋራዥ</text>
+      <text x="20" y="84" fill="#fafafa" font-size="18" font-weight="700">የጥገና ግምት</text>
+      <rect x="196" y="66" width="84" height="20" rx="10" fill="rgba(251,191,36,0.16)"/><text x="238" y="80" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">ጊዜ አልቋል</text>
+
+      <rect x="20" y="100" width="260" height="64" rx="14" fill="#111113" stroke="#262626"/>
+      <text x="34" y="124" fill="#fafafa" font-size="13" font-weight="600">Mercedes c350e</text>
+      <text x="266" y="124" fill="#71717a" font-size="11" text-anchor="end">ሰሌዳ 2-B-45010</text>
+      <text x="34" y="146" fill="#a1a1aa" font-size="11">ብርቱካን ሀብታሙ ጋራዥ</text>
+
+      <g>
+        <rect x="20" y="180" width="260" height="76" rx="0" fill="#111113"/>
+        <rect x="34" y="196" width="20" height="20" rx="6" fill="#059669"/><text x="41" y="211" fill="#fff" font-size="12" font-weight="700">✓</text>
+        <text x="64" y="206" fill="#fafafa" font-size="12" font-weight="500">ፊት ብሬክ መስትያ <tspan fill="#52525b" font-size="10"> ክፍል</tspan></text>
+        <text x="64" y="224" fill="#71717a" font-size="11">2 × 350.00 ብር</text>
+        <text x="266" y="206" fill="#fafafa" font-size="12" font-weight="600">700.00</text>
+        <line x1="20" y1="240" x2="280" y2="240" stroke="#1f1f22" stroke-width="0.5"/>
+        <rect x="34" y="248" width="20" height="20" rx="6" fill="#059669"/><text x="41" y="263" fill="#fff" font-size="12" font-weight="700">✓</text>
+        <text x="64" y="258" fill="#fafafa" font-size="12" font-weight="500">ብሬክ ማቆሚያ ሥራ <tspan fill="#52525b" font-size="10"> ሥራ</tspan></text>
+        <text x="266" y="258" fill="#fafafa" font-size="12" font-weight="600">600.00</text>
+      </g>
+
+      <rect x="20" y="280" width="260" height="88" rx="14" fill="#111113" stroke="#262626"/>
+      <text x="34" y="302" fill="#a1a1aa" font-size="12">ድምር</text><text x="266" y="302" fill="#d4d4d8" font-size="12" text-anchor="end">1,300.00 ብር</text>
+      <text x="34" y="322" fill="#a1a1aa" font-size="12">ታክስ (ቫት 15%)</text><text x="266" y="322" fill="#d4d4d8" font-size="12" text-anchor="end">195.00 ብር</text>
+      <line x1="34" y1="334" x2="266" y2="334" stroke="#3f3f46" stroke-width="0.5" stroke-dasharray="4 3"/>
+      <text x="34" y="356" fill="#fafafa" font-size="14" font-weight="600">ጠቅላላ ለመክፈል</text><text x="266" y="356" fill="#fafafa" font-size="15" font-weight="700" text-anchor="end">1,495.00 ብር</text>
+
+      <rect x="20" y="384" width="260" height="76" rx="14" fill="#111113" stroke="#262626"/>
+      <text x="34" y="406" fill="#d4d4d8" font-size="12" font-weight="500">የስልክ ቁጥርዎ የመጨረሻ 4 አሃዞች</text>
+      <rect x="96" y="416" width="110" height="34" rx="10" fill="#1c1c1f" stroke="#3f3f46"/>
+      <text x="151" y="438" fill="#fafafa" font-size="15" letter-spacing="8" text-anchor="middle">★ ★ ★ ★</text>
+      <text x="34" y="500" fill="#6ee7b7" font-size="13" font-weight="600" opacity="0.4" >ፈቃድዎ ተመዝግቧል — እናመሰግናለን!</text>
+      <rect x="20" y="470" width="126" height="40" rx="14" fill="#059669"/><text x="83" y="494" fill="#fff" font-size="12" font-weight="600" text-anchor="middle">ሙሉ ግምት ፈቅድ</text>
+      <rect x="154" y="470" width="126" height="40" rx="14" fill="#0c0c0d" stroke="#3f3f46"/><text x="217" y="494" fill="#d4d4d8" font-size="12" font-weight="600" text-anchor="middle">ፈቅዳም እምቢ</text>
+      <text x="20" y="560" fill="#3f3f46" font-size="10">last-4 = phone verify · wrong → amber 403 + 5 tries → lock 15min</text>
+    </g>
+  </g>
+
+  <text x="60" y="1108" fill="#3f3f46" font-size="11">Clean-room build for demo brief v4.2 · tokens map 1:1 to app/globals.css + mobile styles · drag this SVG into Figma: it imports as editable vectors.</text>
+</svg>

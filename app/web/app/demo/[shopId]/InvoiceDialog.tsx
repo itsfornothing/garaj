@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { apiJson } from "../../lib/api";
 import ChapaPayMock from "./ChapaPayMock";
+import { useLang } from "../../lib/i18n";
 
 export type InvoicePayload = {
   id: string;
@@ -38,14 +39,6 @@ export type InvoicePayload = {
   qrDataUrl: string;
 };
 
-const METHOD_LABEL: Record<string, string> = {
-  cash: "በገንዘብ",
-  telebirr: "በቴሌብር (ምሳሌ)",
-  cbe_birr: "በሲቢኢ ብር (ምሳሌ)",
-};
-
-const methodLabel = (m: string) => METHOD_LABEL[m] ?? m;
-
 export default function InvoiceDialog({
   shopId,
   orderId,
@@ -63,6 +56,7 @@ export default function InvoiceDialog({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [view, setView] = useState<"invoice" | "chapa">("invoice");
+  const { t } = useLang();
 
   useEffect(() => {
     if (!open) return;
@@ -85,10 +79,10 @@ export default function InvoiceDialog({
       if (!alive) return;
       if (status === 201 || data.invoiceNumber) setInv(data);
       else if (data.error === "estimate_not_approved")
-        setError("ደረሰኝ የፈቀደ ግምት አስፈላጊ ነው።");
+        setError(t("est.noApproved"));
       else if (data.error === "no_estimate")
-        setError("ለዚህ ሥራ ግምት የተዘጋጀ አይደለም — በመጀመሪያ ግምት አዘጋጁ።");
-      else setError("ደረሰኝ ማዘጋጀት አልተቻለም።");
+        setError(t("est.noApproved"));
+      else setError(t("invPage.none"));
     })();
     return () => {
       alive = false;
@@ -121,7 +115,7 @@ export default function InvoiceDialog({
       });
       return;
     }
-    setError(status === 409 ? "ደረሰኙ ተከፍሏል።" : "ክፍያው አልተቀመጸም።");
+    setError(status === 409 ? t("inv.wasPaid") : t("inv.fail"));
   }
 
   const unpaid = inv && inv.status === "unpaid";
@@ -133,10 +127,10 @@ export default function InvoiceDialog({
         if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="modal-in w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-            ደረሰኝ
+            {t("nav.invoices")}
           </h2>
           <button
             onClick={onClose}
@@ -164,7 +158,7 @@ export default function InvoiceDialog({
                   ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400"
                   : "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400"
               }`}>
-                {inv.status === "paid" ? "ተከፍሏል" : "ክፍያ ቀርቧል"}
+                {inv.status === "paid" ? t("inv.paid") : t("invPage.unpaid")}
               </span>
             </div>
             <p className="text-sm text-zinc-500">
@@ -190,7 +184,7 @@ export default function InvoiceDialog({
 
             <div className="mt-2 border-t border-zinc-200 pt-2 text-sm dark:border-zinc-800">
               <div className="flex justify-between text-zinc-500">
-                <span>ጠቅላላ</span>
+                <span>{t("est.subtotal")}</span>
                 <span className="tabular-nums">
                   {Number(inv.subtotalEtb).toLocaleString("am-ET")} ብር
                 </span>
@@ -199,17 +193,17 @@ export default function InvoiceDialog({
                 <span>
                   ታክስ{" "}
                   {inv.taxType === "vat_15"
-                    ? "(ቫት 15%)"
+                    ? "(15%)"
                     : inv.taxType === "tot_10_2"
-                      ? "(ታክስ በሥራ 10% በክፍል 2%)"
-                      : ""}
+                      ? "(10% / 2%)"
+                      : "0%"}
                 </span>
                 <span className="tabular-nums">
                   {Number(inv.taxEtb).toLocaleString("am-ET")} ብር
                 </span>
               </div>
               <div className="mt-1 flex justify-between font-medium text-zinc-900 dark:text-zinc-50">
-                <span>ጠቅላላ ለመክፈል</span>
+                <span>{t("est.total")}</span>
                 <span className="tabular-nums">
                   {Number(inv.totalEtb).toLocaleString("am-ET")} ብር
                 </span>
@@ -221,7 +215,7 @@ export default function InvoiceDialog({
                 {inv.payments
                   .map(
                     (p) =>
-                      `${methodLabel(p.method)} — ${Number(
+                      `${t("pay." + p.method)} — ${Number(
                         p.amountEtb
                       ).toLocaleString("am-ET")} ብር${p.providerRef ? ` (${p.providerRef})` : ""}`
                   )
@@ -236,7 +230,7 @@ export default function InvoiceDialog({
                 className="col-span-1 h-20 w-20 rounded-lg bg-white p-1"
               />
               <p className="col-span-3 text-xs leading-5 text-zinc-500">
-                ኮድ ሆኖ የተቀመጠ የክፍያ ማገናኛ (የሞባይል እይታ)። እንደ G4 ነገዎች ትክክለኛው ቻፓ ማገናኛ ከክፍያ ነጠላ ጋር ፈትቻል።
+                {t("inv.qr")} — እውነተኛው ቻፓ ማገናኛ በG4 ይገናኛል።
               </p>
              </div>
 
@@ -276,13 +270,13 @@ export default function InvoiceDialog({
                       disabled={busy}
                       className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-transform duration-200 ease-out active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300"
                     >
-                      ገንዘብ ተከፍሏል
+                      {t("inv.cash")}
                     </button>
                     <button
                       onClick={() => setView("chapa")}
                       className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97]"
                     >
-                      በቻፓ ይክፈሉ (ዴሞ)
+                      {t("inv.pay")}
                     </button>
                   </div>
                 </div>
@@ -292,7 +286,7 @@ export default function InvoiceDialog({
                 onClick={onClose}
                 className="mt-4 w-full rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out active:scale-[0.97] dark:bg-white dark:text-zinc-900"
               >
-                ተዘጋ
+                {t("inv.close")}
               </button>
             )}
           </>

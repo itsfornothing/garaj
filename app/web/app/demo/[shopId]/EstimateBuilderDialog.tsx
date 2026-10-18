@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { apiJson } from "../../lib/api";
+import { useLang } from "../../lib/i18n";
 
 type Job = {
   id: string;
@@ -53,6 +54,7 @@ export default function EstimateBuilderDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [link, setLink] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     if (!open) return;
@@ -139,7 +141,7 @@ export default function EstimateBuilderDialog({
     );
     if (saved.status !== 201) {
       setBusy(false);
-      setError("ግምቱ ማስቀመጥ አልተቻለም — መስመሮችን አረጋግጥ።");
+      setError(t("inv.fail").replace("ክፍያው", "ግምቱ"));
       return;
     }
     if (!withSend) {
@@ -157,7 +159,7 @@ export default function EstimateBuilderDialog({
         `${window.location.origin}/demo/estimate/${shopId}?token=${sent.data.token}`
       );
     } else {
-      setError("ማስቀመጥ ተደርጓል — ነገር ግን ማገናኛ መላክ አልቻለም።");
+      setError(t("est.savedNoLink"));
     }
   }
 
@@ -168,14 +170,14 @@ export default function EstimateBuilderDialog({
         if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      <div className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="modal-in w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
         {link ? (
           <>
             <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-              ግምት ተላከ እንዳለ
+              {t("st.estimate_sent")} ✓
             </h2>
             <p className="mt-2 text-sm text-zinc-500">
-              ይህ የስልክ ማገናኛ አንድ ጊዜ ብቻ ይታያል — በስልክ በማገናኛ ለደንበኛው ይላኩ።
+              {t("home.s2b")}
             </p>
             <div className="mt-3 flex gap-2">
               <input
@@ -187,21 +189,21 @@ export default function EstimateBuilderDialog({
                 onClick={() => navigator.clipboard?.writeText(link)}
                 className="rounded-lg bg-zinc-900 px-3 text-sm text-white transition-transform duration-150 ease-out active:scale-[0.97] dark:bg-white dark:text-zinc-900"
               >
-                ቅዳ
+                {t("act.copy")}
               </button>
             </div>
             <button
               onClick={onClose}
               className="mt-4 w-full rounded-xl bg-emerald-600 px-5 py-2.5 font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97]"
             >
-              ተዘጋ
+              {t("inv.close")}
             </button>
           </>
         ) : (
           <>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-50">
-                ግምት አዘጋጅ
+                {t("est.title")}
               </h2>
               <button
                 onClick={onClose}
@@ -213,7 +215,7 @@ export default function EstimateBuilderDialog({
             </div>
 
             <p className="mt-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              ግብይት ሥራዎች
+              {t("est.jobs")}
             </p>
             <ul className="mt-1.5 flex flex-col gap-1.5">
               {jobs.map((j) => {
@@ -249,16 +251,19 @@ export default function EstimateBuilderDialog({
                 );
               })}
               {jobs.length === 0 && (
-                <li className="text-sm text-zinc-400">ግብይት ሥራዎች አልተመዘገቡም።</li>
+                <li className="text-sm text-zinc-400">—</li>
               )}
             </ul>
 
             <p className="mt-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              ቁሳቁሶች{" "}
+              {t("est.parts")}{" "}
               {fx && (
                 <span className="text-xs font-normal text-zinc-400">
-                  (ዴሞ ፈዝ፡ ዳሳ 1 {fx.rates.CNY}ብር፣ 1$ {fx.rates.USD}ብር ·{" "}
-                  {fx.markupPct}% ተጨማሪ · {fx.asOf})
+                  {t("est.fxDesk")
+                    .replace("{cny}", String(fx.rates.CNY))
+                    .replace("{usd}", String(fx.rates.USD))
+                    .replace("{pct}", String(fx.markupPct))
+                    .replace("{asOf}", fx.asOf)}
                 </span>
               )}
             </p>
@@ -274,7 +279,7 @@ export default function EstimateBuilderDialog({
                         )
                       )
                     }
-                    placeholder="ምርት"
+                    placeholder={t("est.partName")}
                     className="col-span-2 rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
                   />
                   <input
@@ -320,7 +325,7 @@ export default function EstimateBuilderDialog({
                       )
                     }
                     inputMode="numeric"
-                    placeholder="ብዛት"
+                    placeholder={t("est.partQty")}
                     className="rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
                   />
                   <button
@@ -338,12 +343,12 @@ export default function EstimateBuilderDialog({
               onClick={() => setParts((prev) => [...prev, structuredClone(emptyPart)])}
               className="mt-2 text-sm font-medium text-emerald-700 transition-transform duration-150 ease-out active:scale-[0.97] dark:text-emerald-400"
             >
-              + ቁሳቁስ ጨምር
+              {t("est.addPart")}
             </button>
 
             <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-800/40">
               <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
-                <span>ጠቅላላ ({preview.count} መስመር)</span>
+                <span>{t("est.subtotal")} ({preview.count})</span>
                 <span className="tabular-nums">{preview.subtotal} ብር</span>
               </div>
               <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
@@ -351,7 +356,7 @@ export default function EstimateBuilderDialog({
                 <span className="tabular-nums">{preview.tax} ብር</span>
               </div>
               <div className="mt-1 flex justify-between font-medium text-zinc-900 dark:text-zinc-50">
-                <span>ጠቅላላ</span>
+                <span>{t("est.total")}</span>
                 <span className="tabular-nums">{preview.total} ብር</span>
               </div>
             </div>
@@ -366,14 +371,14 @@ export default function EstimateBuilderDialog({
                 disabled={busy || preview.count === 0}
                 className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-transform duration-200 ease-out active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300"
               >
-                ማስቀመጥ
+                {t("act.save")}
               </button>
               <button
                 onClick={() => save(true)}
                 disabled={busy || preview.count === 0}
                 className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
               >
-                {busy ? "በመላክ ላይ…" : "ማስቀመጥ + አገናኝ ላክ"}
+                {busy ? t("act.busy") : t("act.send")}
               </button>
             </div>
           </>
