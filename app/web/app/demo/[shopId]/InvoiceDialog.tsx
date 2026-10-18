@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiJson } from "../../lib/api";
+import ChapaPayMock from "./ChapaPayMock";
 
 export type InvoicePayload = {
   id: string;
@@ -61,6 +62,7 @@ export default function InvoiceDialog({
   const [inv, setInv] = useState<InvoicePayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [view, setView] = useState<"invoice" | "chapa">("invoice");
 
   useEffect(() => {
     if (!open) return;
@@ -236,31 +238,63 @@ export default function InvoiceDialog({
               <p className="col-span-3 text-xs leading-5 text-zinc-500">
                 ኮድ ሆኖ የተቀመጠ የክፍያ ማገናኛ (የሞባይል እይታ)። እንደ G4 ነገዎች ትክክለኛው ቻፓ ማገናኛ ከክፍያ ነጠላ ጋር ፈትቻል።
               </p>
-            </div>
+             </div>
 
-            {unpaid
-              ? <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={() => pay("cash")}
-                    disabled={busy}
-                    className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-transform duration-200 ease-out active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300"
-                  >
-                    ገንዘብ ተከፍሏል
-                  </button>
-                  <button
-                    onClick={() => pay("telebirr")}
-                    disabled={busy}
-                    className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97] disabled:opacity-40"
-                  >
-                    በቴሌብር (ምሳሌ)
-                  </button>
+            {unpaid ? (
+              view === "chapa" ? (
+                <div className="mt-4">
+                  <ChapaPayMock
+                    shopId={shopId}
+                    invoiceId={inv.id}
+                    totalEtb={inv.totalEtb}
+                    invoiceNumber={inv.invoiceNumber}
+                    onBack={() => setView("invoice")}
+                    onPaid={(r) => {
+                      setInv({
+                        ...inv,
+                        status: "paid",
+                        amountPaidEtb: inv.totalEtb,
+                        payments: [
+                          ...inv.payments,
+                          {
+                            method: r.method,
+                            amountEtb: String(r.amount),
+                            providerRef: r.providerRef,
+                            paidAt: new Date().toISOString(),
+                          },
+                        ],
+                      });
+                      setView("invoice");
+                    }}
+                  />
                 </div>
-              : <button
-                  onClick={onClose}
-                  className="mt-4 w-full rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out active:scale-[0.97] dark:bg-white dark:text-zinc-900"
-                >
-                  ተዘጋ
-                </button>}
+              ) : (
+                <div className="mt-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => pay("cash")}
+                      disabled={busy}
+                      className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-sm font-medium text-zinc-700 transition-transform duration-200 ease-out active:scale-[0.97] disabled:opacity-40 dark:border-zinc-700 dark:text-zinc-300"
+                    >
+                      ገንዘብ ተከፍሏል
+                    </button>
+                    <button
+                      onClick={() => setView("chapa")}
+                      className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out hover:bg-emerald-700 active:scale-[0.97]"
+                    >
+                      በቻፓ ይክፈሉ (ዴሞ)
+                    </button>
+                  </div>
+                </div>
+              )
+            ) : (
+              <button
+                onClick={onClose}
+                className="mt-4 w-full rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-transform duration-200 ease-out active:scale-[0.97] dark:bg-white dark:text-zinc-900"
+              >
+                ተዘጋ
+              </button>
+            )}
           </>
         )}
       </div>

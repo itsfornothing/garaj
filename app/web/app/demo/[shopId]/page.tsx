@@ -7,7 +7,6 @@ import {
   type Order,
   type Shop,
 } from "../../lib/api";
-import SendEstimateLink from "./SendEstimateLink";
 import IntakeTrigger from "./IntakeTrigger";
 import OrderActions from "./OrderActions";
 
@@ -71,10 +70,6 @@ export default async function DemoBoard({ params }: { params: Params }) {
     `/v1/shops/${shop.id}/orders`
   );
 
-  const hasEstimateFlow = orders.some((o) =>
-    ["estimate_sent", "estimate_declined", "approved"].includes(o.status)
-  );
-
   const byStatus = new Map<string, Order[]>();
   for (const o of orders) {
     const list = byStatus.get(o.status) ?? [];
@@ -105,7 +100,6 @@ export default async function DemoBoard({ params }: { params: Params }) {
             </h1>
           </div>
           <IntakeTrigger shopId={shop.id} />
-          {hasEstimateFlow && <SendEstimateLink shopId={shop.id} />}
           <span className="rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-500 dark:border-zinc-700">
             {shop.taxRegime === "vat_15"
               ? "ቫት 15%"

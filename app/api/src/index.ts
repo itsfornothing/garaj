@@ -1131,6 +1131,7 @@ app.post<{ Params: { shopId: string; invoiceId: string } }>(
         status: "paid",
         amountPaid: amount,
         method,
+        providerRef,
       });
     } catch (e) {
       await client.query("ROLLBACK").catch(() => {});
