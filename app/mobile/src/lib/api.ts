@@ -115,3 +115,60 @@ export const chipColors: Record<string, { bg: string; text: string }> = {
   paid: { bg: "#053B29", text: "#6EE7B7" },
   cancelled: { bg: "#27272A", text: "#A1A1AA" },
 };
+
+export type CatalogJob = {
+  id: string;
+  nameAm: string;
+  nameEn: string | null;
+  laborHours: number;
+  laborRateEtb: number;
+};
+
+export type Catalog = {
+  jobs: CatalogJob[];
+  fx: { rates: Record<string, number>; markupPct: number; asOf: string };
+};
+
+export type InvoicePayload = {
+  id: string;
+  invoiceNumber: string;
+  fiscalYearEt: number;
+  subtotalEtb: string;
+  taxEtb: string;
+  taxType: string;
+  totalEtb: string;
+  amountPaidEtb: string;
+  status: string;
+  issuedAt: string;
+  dueAt: string;
+  customerNameAm: string;
+  customerPhone: string;
+  make: string;
+  model: string;
+  plateNumber: string | null;
+  lines: {
+    lineKind: string;
+    nameAm: string;
+    qty: string;
+    lineSubtotalEtb: string;
+    lineTaxEtb: string;
+    lineTotalEtb: string;
+  }[];
+  payments: {
+    method: string;
+    amountEtb: string;
+    providerRef: string | null;
+    paidAt: string;
+  }[];
+  qrDataUrl: string;
+};
+
+export const payMethodAm: Record<string, string> = {
+  cash: "ገንዘብ",
+  telebirr: "ቴሌብር",
+  cbe_birr: "CBE Birr",
+  ebirr: "e-Birr",
+  mpesa: "M-Pesa",
+  card: "ካርድ",
+  bank_transfer: "ባንክ ሽዝት",
+};

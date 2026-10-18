@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { router, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -50,6 +50,12 @@ export default function BoardScreen() {
     };
   }, [shopId, reloadKey]);
 
+  useFocusEffect(
+    useCallback(() => {
+      setReloadKey((k) => k + 1);
+    }, [])
+  );
+
   const list = orders?.filter(
     (o) => filter === "all" || o.status === filter
   );
@@ -67,7 +73,20 @@ export default function BoardScreen() {
           </Text>
         </View>
       </View>
-      <Text style={styles.title}>{shop?.name ?? ""}</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>{shop?.name ?? ""}</Text>
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: "/intake/[shopId]",
+              params: { shopId: String(shopId) },
+            })
+          }
+          style={({ pressed }) => [styles.newOrderBtn, pressed && styles.pressed]}
+        >
+          <Text style={styles.newOrderText}>+ አዲስ ሥራ</Text>
+        </Pressable>
+      </View>
 
       <View>
         <ScrollView
@@ -101,6 +120,7 @@ export default function BoardScreen() {
             <OrderCard
               order={item}
               shopId={String(shopId)}
+              taxRegime={shop?.taxRegime ?? "vat_15"}
               onDone={() => setReloadKey((k) => k + 1)}
             />
           )}
@@ -135,10 +155,12 @@ function OrderCard({
   order,
   shopId,
   onDone,
+  taxRegime,
 }: {
   order: Order;
   shopId: string;
   onDone: () => void;
+  taxRegime: string;
 }) {
   const c = chipColors[order.status] ?? chipColors.cancelled;
   return (
@@ -162,7 +184,12 @@ function OrderCard({
           ተስፋ ቀን: {order.promisedAt.slice(0, 10)}
         </Text>
       )}
-      <OrderOps order={order} shopId={shopId} onDone={onDone} />
+      <OrderOps
+        order={order}
+        shopId={shopId}
+        taxRegime={taxRegime}
+        onDone={onDone}
+      />
     </View>
   );
 }
@@ -182,10 +209,12 @@ const ADVANCE_LABEL: Record<string, string> = {
 function OrderOps({
   order,
   shopId,
+  taxRegime,
   onDone,
 }: {
   order: Order;
   shopId: string;
+  taxRegime: string;
   onDone: () => void;
 }) {
   const [busy, setBusy] = useState(false);
@@ -222,7 +251,33 @@ function OrderOps({
     }
   };
 
-  if (!label && order.status !== "estimate_sent") return null;
+  const openBuilder = () =>
+    router.push({
+      pathname: "/builder/[shopId]",
+      params: { shopId, orderId: order.id, taxRegime },
+    });
+
+  const openInvoice = () =>
+    router.push({
+      pathname: "/invoice/[shopId]",
+      params: { shopId, orderId: order.id },
+    });
+
+  const buildLabel =
+    order.status === "received" ||
+    order.status === "inspection" ||
+    order.status === "estimate_declined"
+      ? "ግምት አዘጋጅ"
+      : null;
+  const invoiceLabel =
+    order.status === "complete" || order.status === "paid"
+      ? order.invoiceId
+        ? "ደረሰኝ እይ"
+        : "ደረሰኝ አዘጋጅ"
+      : null;
+
+  if (!label && !buildLabel && !invoiceLabel && order.status !== "estimate_sent")
+    return null;
 
   return (
     <View style={styles.opsRow}>
@@ -238,7 +293,20 @@ function OrderOps({
         >
           <Text style={styles.opText}>{busy ? "በመላክ ላይ…" : label}</Text>
         </Pressable>
-      ) : (
+      ) : null}
+      {buildLabel ? (
+        <Pressable
+          onPress={openBuilder}
+          style={({ pressed }) => [
+            styles.opBtn,
+            styles.opBtnAlt,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text style={[styles.opText, styles.opTextAlt]}>{buildLabel}</Text>
+        </Pressable>
+      ) : null}
+      {order.status === "estimate_sent" ? (
         <Pressable
           disabled={busy}
           onPress={resendLink}
@@ -253,7 +321,19 @@ function OrderOps({
             አገናኝ እንደገና ላክ
           </Text>
         </Pressable>
-      )}
+      ) : null}
+      {invoiceLabel ? (
+        <Pressable
+          onPress={openInvoice}
+          style={({ pressed }) => [
+            styles.opBtn,
+            styles.opBtnAlt,
+            pressed && styles.pressed,
+          ]}
+        >
+          <Text style={[styles.opText, styles.opTextAlt]}>{invoiceLabel}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -274,7 +354,20 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   chipText: { color: "#a1a1aa", fontSize: 11 },
-  title: { color: "#fafafa", fontSize: 20, fontWeight: "700" },
+  title: { color: "#fafafa", fontSize: 20, fontWeight: "700", flexShrink: 1 },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  newOrderBtn: {
+    backgroundColor: "#10b981",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  newOrderText: { color: "#052e1b", fontSize: 12, fontWeight: "700" },
   chipsRow: { gap: 8, paddingVertical: 14, paddingRight: 16 },
   filter: {
     borderRadius: 999,
