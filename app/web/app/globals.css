@@ -117,6 +117,9 @@ h4 {
       opacity: 1;
     }
   }
+  .aurora {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -140,4 +143,94 @@ h4 {
   .lift:hover {
     transform: translateY(-2px);
   }
+}
+
+/* ---------- Ambient: soft aurora behind the hero ---------- */
+.aurora {
+  position: absolute;
+  inset: -120px 0 auto -20%;
+  height: 460px;
+  max-width: 140%;
+  border-radius: 999px;
+  background: radial-gradient(
+      45% 60% at 32% 42%,
+      rgba(16, 185, 129, 0.14),
+      transparent 70%
+    ),
+    radial-gradient(38% 52% at 68% 30%, rgba(37, 99, 235, 0.09), transparent 70%),
+    radial-gradient(30% 44% at 52% 62%, rgba(139, 92, 246, 0.08), transparent 70%);
+  filter: blur(60px);
+  animation: drift 26s var(--ease-in-out) infinite alternate;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  .aurora {
+    background: radial-gradient(
+        45% 60% at 32% 42%,
+        rgba(16, 185, 129, 0.17),
+        transparent 70%
+      ),
+      radial-gradient(
+        38% 52% at 68% 30%,
+        rgba(59, 130, 246, 0.11),
+        transparent 70%
+      ),
+      radial-gradient(
+        30% 44% at 52% 62%,
+        rgba(139, 92, 246, 0.1),
+        transparent 70%
+      );
+  }
+}
+@keyframes drift {
+  from {
+    transform: translate3d(-1.5%, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, 2%, 0) scale(1.04);
+  }
+}
+
+/* ---------- Spotlight: pointer-following highlight on cards ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .spot {
+    position: relative;
+  }
+  .spot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      300px circle at var(--mx, 120%) var(--my, 120%),
+      rgba(16, 185, 129, 0.09),
+      transparent 65%
+    );
+    opacity: 0;
+    transition: opacity 300ms var(--ease-out);
+    pointer-events: none;
+  }
+  .spot:hover::after {
+    opacity: 1;
+  }
+}
+
+/* ---------- Brand: gradient wordmark ---------- */
+.brand-glow {
+  background: linear-gradient(
+    100deg,
+    var(--accent) 0%,
+    #34d399 45%,
+    #8b5cf6 110%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Focus: visible keyboard rings ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

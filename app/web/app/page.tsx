@@ -63,10 +63,18 @@ export default function Home() {
         ? t("shop.tot")
         : t("shop.exempt");
 
+  const trackSpot = (e: React.MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-zinc-950">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 pt-8">
-        <span className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+    <div className="flex flex-1 flex-col overflow-x-clip bg-zinc-50 dark:bg-zinc-950">
+      <header className="relative mx-auto flex w-full max-w-5xl items-center justify-between px-6 pt-8">
+        <div className="aurora" aria-hidden="true" />
+        <span className="brand-glow text-lg font-semibold tracking-tight">
           ጋራዥ
         </span>
         <LangToggle />
@@ -146,7 +154,8 @@ export default function Home() {
             <Link
               key={shop.id}
               href={`/demo/${shop.id}`}
-              className="enter lift group rounded-xl border border-zinc-200 bg-white p-5 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900"
+              onMouseMove={trackSpot}
+              className="enter lift spot group rounded-xl border border-zinc-200 bg-white p-5 active:scale-[0.98] dark:border-zinc-800 dark:bg-zinc-900"
               style={{ animationDelay: `${i * 40}ms` }}
             >
               <div className="flex items-center justify-between gap-2">

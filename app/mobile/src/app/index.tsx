@@ -52,13 +52,16 @@ export default function ShopsScreen() {
   }, []);
 
   return (
-    <ScrollView
-      style={styles.root}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 },
-      ]}
-    >
+    <View style={styles.rootWrap}>
+      <View style={styles.glow1} pointerEvents="none" />
+      <View style={styles.glow2} pointerEvents="none" />
+      <ScrollView
+        style={styles.root}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 },
+        ]}
+      >
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.topRow}>
         <Text style={styles.badge}>{t("shop.sub")}</Text>
@@ -104,11 +107,31 @@ export default function ShopsScreen() {
         </Link>
       ))}
     </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#09090b" },
+  rootWrap: { flex: 1, backgroundColor: "#09090b", overflow: "hidden" },
+  glow1: {
+    position: "absolute",
+    top: -160,
+    left: -80,
+    width: 420,
+    height: 420,
+    borderRadius: 210,
+    backgroundColor: "rgba(16,185,129,0.10)",
+  },
+  glow2: {
+    position: "absolute",
+    top: -220,
+    right: -120,
+    width: 380,
+    height: 380,
+    borderRadius: 190,
+    backgroundColor: "rgba(59,130,246,0.07)",
+  },
+  root: { flex: 1, backgroundColor: "transparent" },
   content: { paddingHorizontal: 20 },
   badge: {
     alignSelf: "flex-start",
