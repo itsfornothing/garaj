@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   apiGet,
-  statusAm,
   statusOrder,
   type Order,
   type Shop,
@@ -61,15 +60,6 @@ const chip: Record<string, string> = {
     "bg-zinc-100 text-zinc-500 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700",
 };
 
-const ACTION_AM: Record<string, string> = {
-  order_intake: "አዲስ ሥራ ተቀብለናል",
-  order_status_changed: "የሥራ ሁኔታ ተቀየረ",
-  estimate_drafted: "ግምት ተዘጋጅቷል",
-  estimate_sent: "ግምት ተልኗል",
-  estimate_decided: "ደንበኛው ውሳኔ ሰጠ",
-  invoice_issued: "ደረሰኝ ተገናዘበ",
-  payment_recorded: "ክፍያ ተመዝግቧል",
-};
 
 export default function ShopWorkspace({
   shopId,
@@ -219,7 +209,7 @@ export default function ShopWorkspace({
               <section key={status} className="flex w-72 shrink-0 flex-col">
                 <header className="flex items-center justify-between px-1 pb-3">
                   <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
-                    {statusAm[status]}
+                    {t(`st.${status}`)}
                   </h2>
                   <span className="rounded-full bg-zinc-200/60 px-2 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
                     {list.length}
@@ -239,7 +229,7 @@ export default function ShopWorkspace({
                         <span
                           className={`rounded-full border px-2 py-0.5 text-xs ${chip[o.status]}`}
                         >
-                          {statusAm[o.status]}
+                          {t(`st.${o.status}`)}
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-zinc-500">
@@ -308,7 +298,7 @@ export default function ShopWorkspace({
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="text-sm text-zinc-600 dark:text-zinc-300">
-                    {formatEtb(Number(inv.totalEtb))} ብር
+                    {formatEtb(Number(inv.totalEtb))} {t("cur.ETB")}
                   </span>
                   <span
                     className={`rounded-full border px-2 py-0.5 text-xs ${
@@ -350,7 +340,7 @@ export default function ShopWorkspace({
               >
                 <span className="absolute -left-[5px] top-5 h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
                 <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                  {ACTION_AM[e.action] ?? e.action}
+                  {t(`aud.a.${e.action}`)}
                 </p>
                 <p className="mt-0.5 text-xs text-zinc-500">
                   {new Date(e.at).toLocaleString("en-GB", {

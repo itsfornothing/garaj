@@ -96,13 +96,13 @@ export default function EstimateBuilderDialog({
     const labor = all.filter((l) => l.kind === "labor").reduce((s, l) => s + l.amount, 0);
     const part = all.filter((l) => l.kind === "part").reduce((s, l) => s + l.amount, 0);
     let tax = 0;
-    let taxLabel = "ታክስ በሌላ";
+    let taxLabel = t("est.taxX");
     if (taxRegime === "vat_15") {
       tax = subtotal * 0.15;
-      taxLabel = "ቫት 15%";
+      taxLabel = t("est.taxV");
     } else if (taxRegime === "tot_10_2") {
       tax = labor * 0.1 + part * 0.02;
-      taxLabel = "ታክስ (ሥራ 10% · ክፍል 2%)";
+      taxLabel = t("est.taxT");
     }
     const etb = (n: number) =>
       n.toLocaleString("am-ET", { maximumFractionDigits: 2 });
@@ -141,7 +141,7 @@ export default function EstimateBuilderDialog({
     );
     if (saved.status !== 201) {
       setBusy(false);
-      setError(t("inv.fail").replace("ክፍያው", "ግምቱ"));
+      setError(t("est.failSave"));
       return;
     }
     if (!withSend) {
@@ -240,11 +240,11 @@ export default function EstimateBuilderDialog({
                         {j.nameAm}
                       </span>
                       <span className="text-xs text-zinc-400">
-                        {Number(j.laborHours)} ሰዓት ·{" "}
+                        {Number(j.laborHours)} {t("est.hours")} ·{" "}
                         {(
                           Number(j.laborHours) * Number(j.laborRateEtb)
                         ).toLocaleString("am-ET")}{" "}
-                        ብር
+                        {t("cur.ETB")}
                       </span>
                     </label>
                   </li>
@@ -297,7 +297,7 @@ export default function EstimateBuilderDialog({
                       )
                     }
                     inputMode="decimal"
-                    placeholder={p.currency === "CNY" ? "¥ ወጪ" : p.currency === "USD" ? "$ ወጪ" : "ወጪ"}
+                    placeholder={(p.currency === "CNY" ? "¥ " : p.currency === "USD" ? "$ " : "") + t("est.partCost")}
                     className="rounded-lg border border-zinc-300 bg-white px-2.5 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
                   />
                   <select
@@ -349,15 +349,15 @@ export default function EstimateBuilderDialog({
             <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm dark:border-zinc-800 dark:bg-zinc-800/40">
               <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
                 <span>{t("est.subtotal")} ({preview.count})</span>
-                <span className="tabular-nums">{preview.subtotal} ብር</span>
+                <span className="tabular-nums">{preview.subtotal} {t("cur.ETB")}</span>
               </div>
               <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
                 <span>{preview.taxLabel}</span>
-                <span className="tabular-nums">{preview.tax} ብር</span>
+                <span className="tabular-nums">{preview.tax} {t("cur.ETB")}</span>
               </div>
               <div className="mt-1 flex justify-between font-medium text-zinc-900 dark:text-zinc-50">
                 <span>{t("est.total")}</span>
-                <span className="tabular-nums">{preview.total} ብር</span>
+                <span className="tabular-nums">{preview.total} {t("cur.ETB")}</span>
               </div>
             </div>
 

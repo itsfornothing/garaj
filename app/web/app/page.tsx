@@ -6,11 +6,13 @@ import { apiGet, type Order, type Shop } from "./lib/api";
 import { useLang } from "./lib/i18n";
 import LangToggle from "./demo/[shopId]/LangToggle";
 
-const features = [
-  { title: "home.f.heap", body: "home.f.heapB" },
-  { title: "home.f.report", body: "home.f.reportB", road: true },
-  { title: "home.f.offline", body: "home.f.offlineB", road: true },
-  { title: "home.f.ev", body: "home.f.evB" },
+const pillars = [
+  { title: "home.w1", body: "home.w1b" },
+  { title: "home.w2", body: "home.w2b" },
+  { title: "home.w3", body: "home.w3b" },
+  { title: "home.w4", body: "home.w4b" },
+  { title: "home.w5", body: "home.w5b" },
+  { title: "home.w6", body: "home.w6b" },
 ];
 
 const steps = [
@@ -80,25 +82,36 @@ export default function Home() {
         <LangToggle />
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-6 pt-10 pb-24" key={lang}>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 pt-14 pb-24" key={lang}>
         <p className="enter w-fit rounded-full border border-emerald-600/20 bg-emerald-50 px-3 py-1 text-sm text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400">
           {t("brand.tagline")}
         </p>
         <h1
-          className="enter max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-zinc-900 sm:text-5xl dark:text-zinc-50"
+          className="enter mt-6 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight text-zinc-900 sm:text-6xl dark:text-zinc-50"
           style={{ animationDelay: "40ms" }}
         >
           {t("home.hero")}
         </h1>
         <p
-          className="enter mt-4 max-w-xl text-lg leading-8 text-zinc-600 dark:text-zinc-400"
+          className="enter mt-5 max-w-2xl text-xl leading-9 text-zinc-600 dark:text-zinc-300"
           style={{ animationDelay: "80ms" }}
         >
-          {t("home.sub")}
+          {t("home.lead")}
         </p>
+        <div className="enter mt-7 flex flex-wrap items-center gap-4" style={{ animationDelay: "120ms" }}>
+          <a href="#shops" className="press rounded-xl bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[#052e1b]">
+            {t("home.cta")}
+          </a>
+        </div>
 
-        <section className="mt-12 grid gap-4 sm:grid-cols-2">
-          {features.map((f, i) => (
+        <h2
+          className="enter mt-20 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+          style={{ animationDelay: "140ms" }}
+        >
+          {t("home.howwhy")}
+        </h2>
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {pillars.map((f, i) => (
             <div
               key={f.title}
               className="enter lift rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
@@ -108,11 +121,6 @@ export default function Home() {
                 <h2 className="font-medium text-zinc-900 dark:text-zinc-50">
                   {t(f.title)}
                 </h2>
-                {f.road && (
-                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                    {t("home.coming")}
-                  </span>
-                )}
               </div>
               <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
                 {t(f.body)}
@@ -121,7 +129,7 @@ export default function Home() {
           ))}
         </section>
 
-        <h2 className="mt-16 text-2xl font-medium tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h2 className="mt-20 text-2xl font-medium tracking-tight text-zinc-900 dark:text-zinc-50">
           {t("home.how")}
         </h2>
         <section className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -144,10 +152,10 @@ export default function Home() {
           ))}
         </section>
 
-        <h2 className="mt-16 text-2xl font-medium tracking-tight text-zinc-900 dark:text-zinc-50">
-          {t("home.demoShops")}
+        <h2 id="shops" className="mt-20 text-2xl font-medium tracking-tight text-zinc-900 dark:text-zinc-50">
+          {t("home.try")}
         </h2>
-        <p className="mt-2 text-sm text-zinc-500">{t("home.demoSub")}</p>
+        <p className="mt-2 max-w-2xl text-base text-zinc-500">{t("home.trySub")}</p>
 
         <section className="mt-6 grid gap-4 sm:grid-cols-3">
           {(boards ?? []).map(({ shop, active, done }, i) => (

@@ -151,7 +151,7 @@ export default function InvoiceScreen() {
             <View style={styles.totalRow}>
               <Text style={styles.grandLabel}>{t("est.total")}</Text>
               <Text style={styles.grandVal}>
-                {formatEtb(Number(inv.totalEtb))} ብር
+                {formatEtb(Number(inv.totalEtb))} {t("cur.ETB")}
               </Text>
             </View>
           </View>

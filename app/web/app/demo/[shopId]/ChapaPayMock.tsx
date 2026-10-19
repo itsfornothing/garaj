@@ -63,7 +63,7 @@ export default function ChapaPayMock({
       <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-5 text-center dark:border-emerald-500/30 dark:bg-emerald-500/10">
         <p className="text-2xl">✓</p>
         <p className="mt-1 font-medium text-emerald-800 dark:text-emerald-300">
-          {t("inv.paid")} — {Number(totalEtb).toLocaleString("am-ET")} ብር
+          {t("inv.paid")} — {Number(totalEtb).toLocaleString("en-US")} {t("cur.ETB")}
         </p>
         <p className="mt-1 font-mono text-xs text-emerald-700 dark:text-emerald-400">
           {invoiceNumber} · {ref}
@@ -80,11 +80,11 @@ export default function ChapaPayMock({
             {t("inv.pay")}
           </p>
           <p className="text-xs text-zinc-400">
-            {invoiceNumber} · {Number(totalEtb).toLocaleString("am-ET")} ብር
+            {invoiceNumber} · {Number(totalEtb).toLocaleString("en-US")} {t("cur.ETB")}
           </p>
         </div>
         <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium text-zinc-500 dark:bg-zinc-700 dark:text-zinc-300">
-          ምሳሌ · እውነተኛው ከG4 ነገዎች አስተሳሰብ
+          {t("inv.mockNote")}
         </span>
       </div>
 

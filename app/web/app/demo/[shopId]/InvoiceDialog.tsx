@@ -141,7 +141,7 @@ export default function InvoiceDialog({
         </div>
 
         {!inv && !error && (
-          <p className="mt-6 text-center text-sm text-zinc-400">በማዘጋጀት ላይ…</p>
+          <p className="mt-6 text-center text-sm text-zinc-400">{t("inv.processing")}</p>
         )}
         {error && (
           <p className="mt-4 text-sm text-red-600 dark:text-red-400">{error}</p>
@@ -172,11 +172,11 @@ export default function InvoiceDialog({
                   <span className="text-zinc-700 dark:text-zinc-300">
                     {l.nameAm}
                     <span className="ml-1 text-xs text-zinc-400">
-                      {Number(l.qty)} × {l.lineKind === "service" ? "ሥራ" : "ምርት"}
+                      {Number(l.qty)} × {l.lineKind === "service" ? t("cust.kindService") : t("cust.kindPart")}
                     </span>
                   </span>
                   <span className="tabular-nums text-zinc-900 dark:text-zinc-50">
-                    {Number(l.lineTotalEtb).toLocaleString("am-ET")} ብር
+                    {Number(l.lineTotalEtb).toLocaleString("en-US")} {t("cur.ETB")}
                   </span>
                 </li>
               ))}
@@ -186,12 +186,12 @@ export default function InvoiceDialog({
               <div className="flex justify-between text-zinc-500">
                 <span>{t("est.subtotal")}</span>
                 <span className="tabular-nums">
-                  {Number(inv.subtotalEtb).toLocaleString("am-ET")} ብር
+                  {Number(inv.subtotalEtb).toLocaleString("en-US")} {t("cur.ETB")}
                 </span>
               </div>
               <div className="flex justify-between text-zinc-500">
                 <span>
-                  ታክስ{" "}
+                  {t("est.tax")}{" "}
                   {inv.taxType === "vat_15"
                     ? "(15%)"
                     : inv.taxType === "tot_10_2"
@@ -199,13 +199,13 @@ export default function InvoiceDialog({
                       : "0%"}
                 </span>
                 <span className="tabular-nums">
-                  {Number(inv.taxEtb).toLocaleString("am-ET")} ብር
+                  {Number(inv.taxEtb).toLocaleString("en-US")} {t("cur.ETB")}
                 </span>
               </div>
               <div className="mt-1 flex justify-between font-medium text-zinc-900 dark:text-zinc-50">
                 <span>{t("est.total")}</span>
                 <span className="tabular-nums">
-                  {Number(inv.totalEtb).toLocaleString("am-ET")} ብር
+                  {Number(inv.totalEtb).toLocaleString("en-US")} {t("cur.ETB")}
                 </span>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function InvoiceDialog({
                     (p) =>
                       `${t("pay." + p.method)} — ${Number(
                         p.amountEtb
-                      ).toLocaleString("am-ET")} ብር${p.providerRef ? ` (${p.providerRef})` : ""}`
+                      ).toLocaleString("en-US")} ${t("cur.ETB")}${p.providerRef ? ` (${p.providerRef})` : ""}`
                   )
                   .join(" · ")}
               </p>
@@ -230,7 +230,7 @@ export default function InvoiceDialog({
                 className="col-span-1 h-20 w-20 rounded-lg bg-white p-1"
               />
               <p className="col-span-3 text-xs leading-5 text-zinc-500">
-                {t("inv.qr")} — እውነተኛው ቻፓ ማገናኛ በG4 ይገናኛል።
+                {t("inv.qr")}
               </p>
              </div>
 

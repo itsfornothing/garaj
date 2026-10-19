@@ -9,7 +9,69 @@ type Entry = { am: string; en: string };
 export const DICT: Record<string, Entry> = {
   // Brand / home
   "brand.tagline": { am: "ለኢትዮጵያ ጋራዦች የተመሰረተ", en: "Built for Ethiopian garages" },
-  "home.hero": { am: "ጋራዥዎን በስልክዎ ያስተዳድሩ", en: "Run your garage from your phone" },
+  "home.hero": {
+    am: "ጋራዥዎን ከተቀቢባ እስከ ተከፍሏል — ሁሉም በአንድ ቦታ",
+    en: "Your garage, from take-in to paid — all on one board",
+  },
+  "home.lead": {
+    am: "ጋራዥ ለኢትዮጵያ ጋራጆች እና የኤሌክትሪክ ተሽከርካሪ አገልግሎት ማዕከላት የተሰራ መስታወት ነው — ደንበኛ ተቀብሎ፣ ግምት ላክ፣ ውሳኔ ተቀብል፣ ሥራ ስራ … እስከ ተከፍሏል ባንድ ሰሌዳ ላይ።",
+    en: "GarAj is a workshop platform built for Ethiopian garages and EV centers: take customer and car details in, build the estimate with jobs and parts, send the approval link, then run the job to invoices, taxes and payments — all from one board.",
+  },
+  "home.howwhy": {
+    am: "ጋራዥ እንዴት ነገዎችን ሳስተዳድር ይሰድፈዋል",
+    en: "What the platform does, step by step",
+  },
+  "home.w1": { am: "1 · ተቀበል", en: "1 · Take the job in" },
+  "home.w1b": {
+    am: "ደንበኛ በሰሌዳ ቁጥር፣ በስልክ ወይም በስም በአንድ ሳጥን ይፈልጉ። አዲስ ከሆነ ተሽከርካሪውን በፍቃድ ይመዝገቡ (ማዕከል፣ ሞዴል፣ የነዳጅ አይነት።",
+    en: "Search the customer by plate, phone or name in one box. New face? Register the car (make, model, fuel type — EV chips included) with consent.",
+  },
+  "home.w2": { am: "2 · ግምት አዘጋጅ", en: "2 · Build the estimate" },
+  "home.w2b": {
+    am: "ካታሎግ ሥራዎችን ይምረጡ (ሰዓት × የሠራተኛ ተመን) እና ክፍሎችን ይጨምሩ — ቻይና ወይም ዶላር ዋጋ በዛሬ የጽሑፍ ተመና ወደ ብር ይቀየራል።",
+    en: "Pick canned jobs (labor hours × birr rate) and add parts — imported parts price in CNY or USD and convert at today's desk rate with your markup.",
+  },
+  "home.w3": { am: "3 · ፈቅድ በኮድ", en: "3 · Approve by code" },
+  "home.w3b": {
+    am: "ደንበኛው በራሱ ስልክ ይከፈታል፣ መስመሮችን በዋጋ ይመልከታል፣ ሙሉ ወይም ክፍል ይፈቅዳል — በስልክዎ የመጨረሻ 4 ቁጥሮች ያረጋግጣል።",
+    en: "The customer opens the link on their own phone, sees each line priced, and approves all or part — then verifies it with the last 4 digits of their phone.",
+  },
+  "home.w4": { am: "4 · ደረሰኝ ባንድ እንተወ", en: "4 · Invoice in one tap" },
+  "home.w4b": {
+    am: "ሥራው ሲታረግ ደረሰኙ እራሱን ይፈጥራል — ተራ ቁጥር፣ ቫት ወይም የአገልግሎት ታክስ በንግድዎ አይነት፣ እና የሞባይል እይታ ኮድ።",
+    en: "When the job is done, the invoice follows: global sequential number (INV-2019/00005), VAT or service tax by your regime, and a QR receipt code.",
+  },
+  "home.w5": { am: "5 · ዴሞ ቻፓ ክፍያ", en: "5 · Pay with Chapa (demo)" },
+  "home.w5b": {
+    am: "ደንበኛው በሚያውቀው መብራ ይከፍላል — ቴሌብር፣ CBE ብር፣ e-Birr፣ M-Pesa ወይም ካርድ። እውነተኛ ቻፓ በG4 ይገናኛል፤ ዛሬ ዴሞው ዑደቱን ያጠናቃል።",
+    en: "The customer pays in the way they know — telebirr, CBE Birr, e-Birr, M-Pesa or card. Real Chapa lands in G4; today the demo path completes the loop.",
+  },
+  "home.w6": { am: "6 · መረጃ በታሪክ", en: "6 · Everything audited" },
+  "home.w6b": {
+    am: "እያንዳንዱ ውሳኔ — ምዝገባ፣ የሁኔታ መቀየር፣ ፈቃድ፣ ክፍያ — በታሪክ ለግዜው ተመዝግቧል። ገንዘብ ላለተነካ ሠሌዳ ላይ ነገ ታፈልጉ ይሬሳል።",
+    en: "Every decision — intake, status changes, approvals, payments — is written to an audit trail with before/after, actor and channel. If it moved money, it's on the record.",
+  },
+  "home.try": { am: "የዴሞ ሰሌዳ ይሞክሩ", en: "Try the live demo" },
+  "home.trySub": {
+    am: "ሦስት የሚሰሩ ጋራጆች — ከተቀብሎ ሥራዎች፣ ግምቶች እና ክፍያዎች ጋር ተዘጋጅተዋል። አንዱን ስምጡ ከዚያ ሁሉንም ቅደም ተከተል በአምስት ደቂቃ ያጠናቃሉ።",
+    en: "Three working garages, pre-seeded with jobs, invoices and payments — click one and run the whole flow in under five minutes.",
+  },
+  "home.cta": { am: "አሁኑኑ ይሞክሩ →", en: "Try it now →" },
+  "intake.short": { am: "አዲስ ሥራ", en: "New job" },
+  "est.taxX": { am: "ታክስ ነጻ", en: "No tax" },
+  "est.hours": { am: "ሰዓት", en: "h" },
+  "est.failSave": {
+    am: "ግምቱን ማስቀመጥ አልተቻለም — እንደገና ይሞክሩ።",
+    en: "Couldn't save the estimate — try again.",
+  },
+  "cust.forPrefix": { am: "ለ", en: "for" },
+  "aud.a.order_intake": { am: "አዲስ ሥራ ተቀብለናል", en: "New job registered" },
+  "aud.a.order_status_changed": { am: "የሥራ ሁኔታ ተቀየረ", en: "Job status changed" },
+  "aud.a.estimate_drafted": { am: "ግምት ተዘጋጅቷል", en: "Estimate drafted" },
+  "aud.a.estimate_sent": { am: "ግምት ተልኗል", en: "Estimate sent" },
+  "aud.a.approval_recorded": { am: "ደንበኛው ውሳኔ ሰጠ", en: "Customer decided" },
+  "aud.a.invoice_issued": { am: "ደረሰኝ ተገናዘበ", en: "Invoice issued" },
+  "aud.a.payment_recorded": { am: "ክፍያ ተመዝግቧል", en: "Payment recorded" },
   "home.sub": {
     am: "ተቀብሎ ከተከፍሏል ድረስ — ግምት፣ ፈቃድ፣ ደረሰኝ እና ገቢ ወጪ ሁሉም በአንድ ቦታ። በአማርኛ ፊደል፣ በብር።",
     en: "From intake to paid — estimates, approvals, invoices and cash flow in one place. In Ethiopic script, in Birr.",

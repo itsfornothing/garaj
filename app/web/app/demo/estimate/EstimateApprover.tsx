@@ -82,9 +82,9 @@ export default function EstimateApprover({
   );
 
   const taxLabel: Record<string, string> = {
-    vat_15: "ቫት 15%",
-    tot_10_2: "ታክስ በአገልግሎት 10%",
-    exempt: "ታክስ ነጻ",
+    vat_15: "taxV",
+    tot_10_2: "taxT",
+    exempt: "taxX",
   };
 
   const toggle = (id: string) => {
@@ -161,7 +161,7 @@ export default function EstimateApprover({
           </span>
         </div>
         <p className="mt-1 text-sm text-zinc-500">
-          {head.shopName} · ለ{head.customerNameAm}
+          {head.shopName} · {t("cust.forPrefix")} {head.customerNameAm}
         </p>
       </div>
 
@@ -193,11 +193,11 @@ export default function EstimateApprover({
                           </span>
                         </p>
                         <p className="text-sm text-zinc-500">
-                          {Number(l.qty)} × {etb(Number(l.unitPriceEtb))} ብር
+                          {Number(l.qty)} × {etb(Number(l.unitPriceEtb))} {t("cur.ETB")}
                         </p>
                       </div>
                       <p className="font-medium text-zinc-900 tabular-nums dark:text-zinc-50">
-                        {etb(Number(l.qty) * Number(l.unitPriceEtb))} ብር
+                        {etb(Number(l.qty) * Number(l.unitPriceEtb))} {t("cur.ETB")}
                       </p>
                     </label>
                   </li>
@@ -207,15 +207,15 @@ export default function EstimateApprover({
             <div className="border-t border-zinc-200 bg-zinc-50 px-5 py-4 dark:border-zinc-800 dark:bg-zinc-800/40">
               <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
                 <span>{t("est.subtotal")}</span>
-                <span className="tabular-nums">{etb(Number(head.subtotalEtb))} ብር</span>
+                <span className="tabular-nums">{etb(Number(head.subtotalEtb))} {t("cur.ETB")}</span>
               </div>
               <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-400">
-                <span>ታክስ ({taxLabel[head.taxType] ?? head.taxType})</span>
-                <span className="tabular-nums">{etb(Number(head.taxEtb))} ብር</span>
+                <span>{t("est.tax")} ({t("est." + (taxLabel[head.taxType] ?? "taxX"))})</span>
+                <span className="tabular-nums">{etb(Number(head.taxEtb))} {t("cur.ETB")}</span>
               </div>
               <div className="mt-1 flex justify-between border-t border-dashed border-zinc-300 pt-2 font-medium text-zinc-900 dark:border-zinc-700 dark:text-zinc-50">
                 <span>{t("est.total")}</span>
-                <span className="tabular-nums">{etb(Number(head.totalEtb))} ብር</span>
+                <span className="tabular-nums">{etb(Number(head.totalEtb))} {t("cur.ETB")}</span>
               </div>
               {!decision && (
                 <p className="mt-2 text-xs text-zinc-400">

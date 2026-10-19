@@ -169,7 +169,7 @@ export default function EstimateScreen() {
               <Text style={styles.plate}>{t("board.plate")} {data.plateNumber ?? "—"}</Text>
             </View>
             <Text style={styles.shopLine}>
-              {data.shopName} · ለ{data.customerNameAm}
+              {data.shopName} · {t("cust.forPrefix")} {data.customerNameAm}
             </Text>
           </View>
 
@@ -204,11 +204,11 @@ export default function EstimateScreen() {
                           </Text>
                         </Text>
                         <Text style={styles.lineSub}>
-                          {Number(l.qty)} × {formatEtb(Number(l.unitPriceEtb))} ብር
+                          {Number(l.qty)} × {formatEtb(Number(l.unitPriceEtb))} {t("cur.ETB")}
                         </Text>
                       </View>
                       <Text style={styles.lineTotal}>
-                        {formatEtb(Number(l.qty) * Number(l.unitPriceEtb))} ብር
+                        {formatEtb(Number(l.qty) * Number(l.unitPriceEtb))} {t("cur.ETB")}
                       </Text>
                     </Pressable>
                   );
@@ -217,19 +217,19 @@ export default function EstimateScreen() {
                   <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>{t("est.subtotal")}</Text>
                     <Text style={styles.totalValue}>
-                      {formatEtb(Number(data.subtotalEtb))} ብር
+                      {formatEtb(Number(data.subtotalEtb))} {t("cur.ETB")}
                     </Text>
                   </View>
                   <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>{t("est.tax")} ({taxLabel})</Text>
                     <Text style={styles.totalValue}>
-                      {formatEtb(Number(data.taxEtb))} ብር
+                      {formatEtb(Number(data.taxEtb))} {t("cur.ETB")}
                     </Text>
                   </View>
                   <View style={[styles.totalRow, styles.totalGrand]}>
                     <Text style={styles.totalGrandLabel}>{t("est.total")}</Text>
                     <Text style={styles.totalGrandValue}>
-                      {formatEtb(Number(data.totalEtb))} ብር
+                      {formatEtb(Number(data.totalEtb))} {t("cur.ETB")}
                     </Text>
                   </View>
                   <Text style={styles.demoNote}>

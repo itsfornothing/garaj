@@ -186,7 +186,7 @@ export default function BuilderScreen() {
               <View style={styles.jobInfo}>
                 <Text style={styles.jobName}>{j.nameAm}</Text>
                 <Text style={styles.jobSub}>
-                  {j.laborHours} ሰዓት × {formatEtb(j.laborRateEtb)} ብር
+                  {j.laborHours} ሰዓት × {formatEtb(j.laborRateEtb)} {t("cur.ETB")}
                 </Text>
               </View>
               <Text style={styles.jobPrice}>
@@ -271,7 +271,7 @@ export default function BuilderScreen() {
               <View style={styles.totalRow}>
                 <Text style={styles.grandLabel}>{t("est.total")}</Text>
                 <Text style={styles.grandVal}>
-                  {formatEtb(preview.total)} ብር
+                  {formatEtb(preview.total)} {t("cur.ETB")}
                 </Text>
               </View>
             </View>

@@ -101,7 +101,7 @@ export default function InvoicesScreen() {
                 {Number(inv.totalEtb).toLocaleString("en-US", {
                   maximumFractionDigits: 2,
                 })}{" "}
-                ብር
+                {t("cur.ETB")}
               </Text>
             </View>
           </View>
