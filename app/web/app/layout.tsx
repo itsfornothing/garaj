@@ -29,7 +29,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="am"
       className={`${geistSans.variable} ${geistMono.variable} ${ethiopic.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var m=localStorage.garaj_mode||'system';var d=m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-mode',d?'dark':'light');}catch(e){}",
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         <LangProvider>{children}</LangProvider>
       </body>

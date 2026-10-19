@@ -58,6 +58,12 @@ export const DICT: Record<string, Entry> = {
   },
   "home.cta": { am: "አሁኑኑ ይሞክሩ →", en: "Try it now →" },
   "intake.short": { am: "አዲስ ሥራ", en: "New job" },
+  "board.filterAll": { am: "ሁሉም", en: "All" },
+  "board.hideEmpty": { am: "ባዶ ደረጃዎችን ደብቅ", en: "Hide empty" },
+  "board.showEmpty": { am: "ሁሉንም ደረጃዎች አሳይ", en: "Show all columns" },
+  "mode.light": { am: "ብርሃን", en: "Light" },
+  "mode.dark": { am: "ጨለማ", en: "Dark" },
+  "mode.system": { am: "ሥርዓት", en: "Auto" },
   "est.taxX": { am: "ታክስ ነጻ", en: "No tax" },
   "est.hours": { am: "ሰዓት", en: "h" },
   "est.failSave": {

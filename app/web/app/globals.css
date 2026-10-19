@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-mode="dark"], [data-mode="dark"] *));
 
 :root {
   --background: #ffffff;
@@ -22,11 +23,9 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html[data-mode="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
@@ -53,11 +52,9 @@ h4 {
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: rgba(10, 10, 10, 0.72);
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
+html[data-mode="dark"] .glass {
+  background: rgba(10, 10, 10, 0.72);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ---------- Motion: press feedback, entrances, reduced motion ---------- */
@@ -128,10 +125,8 @@ h4 {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
-  @media (prefers-color-scheme: dark) {
-    .glass {
-      background: #0a0a0a;
-    }
+  html[data-mode="dark"] .glass {
+    background: #0a0a0a;
   }
 }
 
@@ -163,24 +158,14 @@ h4 {
   animation: drift 26s var(--ease-in-out) infinite alternate;
   pointer-events: none;
 }
-@media (prefers-color-scheme: dark) {
-  .aurora {
-    background: radial-gradient(
-        45% 60% at 32% 42%,
-        rgba(16, 185, 129, 0.17),
-        transparent 70%
-      ),
-      radial-gradient(
-        38% 52% at 68% 30%,
-        rgba(59, 130, 246, 0.11),
-        transparent 70%
-      ),
-      radial-gradient(
-        30% 44% at 52% 62%,
-        rgba(139, 92, 246, 0.1),
-        transparent 70%
-      );
-  }
+html[data-mode="dark"] .aurora {
+  background: radial-gradient(
+      45% 60% at 32% 42%,
+      rgba(16, 185, 129, 0.17),
+      transparent 70%
+    ),
+    radial-gradient(38% 52% at 68% 30%, rgba(59, 130, 246, 0.11), transparent 70%),
+    radial-gradient(30% 44% at 52% 62%, rgba(139, 92, 246, 0.1), transparent 70%);
 }
 @keyframes drift {
   from {

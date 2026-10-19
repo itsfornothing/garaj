@@ -243,6 +243,11 @@ export default function EstimateApprover({
                 </label>
                 <input
                   inputMode="numeric"
+                  autoComplete="one-time-code"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  pattern="[0-9]{4}"
+                  enterKeyHint="done"
                   maxLength={4}
                   value={last4}
                   onChange={(e) => {

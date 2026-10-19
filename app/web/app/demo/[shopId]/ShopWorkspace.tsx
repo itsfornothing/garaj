@@ -16,6 +16,7 @@ const formatEtb = (n: number) =>
 import IntakeTrigger from "./IntakeTrigger";
 import OrderActions from "./OrderActions";
 import LangToggle from "./LangToggle";
+import ThemeToggle from "./ThemeToggle";
 
 export type WorkspaceTab = "board" | "invoices" | "audit";
 
@@ -75,6 +76,8 @@ export default function ShopWorkspace({
   const [invoices, setInvoices] = useState<InvoiceRow[] | null>(null);
   const [audit, setAudit] = useState<AuditRow[] | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [filter, setFilter] = useState<string>("all");
+  const [hideEmpty, setHideEmpty] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -177,7 +180,10 @@ export default function ShopWorkspace({
           </div>
           <div className="flex items-center gap-2">
             <IntakeTrigger shopId={shopId} onChanged={refresh} />
-            <LangToggle />
+            <div className="flex items-center gap-2">
+              <LangToggle />
+              <ThemeToggle compact />
+            </div>
           </div>
         </div>
         <nav className="mx-auto flex w-full max-w-6xl items-center gap-5 px-6">
@@ -202,8 +208,38 @@ export default function ShopWorkspace({
       </div>
 
       {tab === "board" && (
-        <div className="mx-auto flex w-full max-w-6xl flex-1 gap-4 overflow-x-auto px-6 py-5">
-          {statusOrder.map((status, ci) => {
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-5">
+          <div className="mb-4 flex shrink-0 flex-wrap items-center gap-2">
+            <FilterChip
+              label={t("board.filterAll")}
+              active={filter === "all"}
+              onClick={() => setFilter("all")}
+            />
+            {statusOrder.map((sKey) => (
+              <FilterChip
+                key={sKey}
+                label={t(`st.${sKey}`)}
+                active={filter === sKey}
+                onClick={() => setFilter(sKey)}
+              />
+            ))}
+            <FilterChip
+              label={hideEmpty ? t("board.showEmpty") : t("board.hideEmpty")}
+              active={hideEmpty}
+              onClick={() => setHideEmpty(!hideEmpty)}
+            />
+          </div>
+          <div
+            className={
+              filter === "all"
+                ? "flex flex-1 gap-4 overflow-x-auto"
+                : "flex w-full"
+            }
+          >
+          {filter === "all"
+            ? statusOrder
+                .filter((s) => !hideEmpty || (byStatus.get(s) ?? []).length > 0)
+                .map((status, ci) => {
             const list = byStatus.get(status) ?? [];
             return (
               <section key={status} className="flex w-72 shrink-0 flex-col">
@@ -262,7 +298,65 @@ export default function ShopWorkspace({
                 </div>
               </section>
             );
-          })}
+          })
+            : (() => {
+                const list = byStatus.get(filter) ?? [];
+                return (
+                  <section className="flex w-full max-w-xl flex-col">
+                    <header className="flex items-center justify-between px-1 pb-3">
+                      <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                        {t(`st.${filter}`)}
+                      </h2>
+                      <span className="rounded-full bg-zinc-200/60 px-2 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                        {list.length}
+                      </span>
+                    </header>
+                    <div className="flex flex-col gap-2">
+                      {list.map((o, i) => (
+                        <article
+                          key={o.id}
+                          className="enter rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+                          style={{ animationDelay: `${Math.min(i, 4) * 40}ms` }}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-medium text-zinc-900 dark:text-zinc-50">
+                              {o.make} {o.model}
+                            </p>
+                            <span
+                              className={`rounded-full border px-2 py-0.5 text-xs ${chip[o.status]}`}
+                            >
+                              {t(`st.${o.status}`)}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-zinc-500">
+                            {t("board.plate")}: {o.plateNumber ?? "—"}
+                          </p>
+                          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                            {o.customerNameAm} · {o.customerPhone}
+                          </p>
+                          {o.promisedAt && (
+                            <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                              {t("board.promised")}: {o.promisedAt.slice(0, 10)}
+                            </p>
+                          )}
+                          <OrderActions
+                            shopId={shopId}
+                            order={o}
+                            taxRegime={shop?.taxRegime ?? "vat_15"}
+                            onChanged={refresh}
+                          />
+                        </article>
+                      ))}
+                      {list.length === 0 && (
+                        <div className="enter rounded-xl border border-dashed border-zinc-300 p-4 text-center text-xs text-zinc-400 dark:border-zinc-700">
+                          {t("board.empty")}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                );
+              })()}
+          </div>
           {orders && orders.length === 0 && (
             <div className="m-auto max-w-sm text-center">
               <p className="text-4xl">🧰</p>
@@ -357,5 +451,28 @@ export default function ShopWorkspace({
         </div>
       )}
     </div>
+  );
+}
+function FilterChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={
+        "press rounded-full border px-3 py-1.5 text-xs font-medium transition-transform duration-150 ease-out active:scale-[0.97] " +
+        (active
+          ? "border-emerald-600 bg-emerald-600/10 text-emerald-800 dark:border-emerald-400 dark:bg-emerald-500/15 dark:text-emerald-300"
+          : "border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200")
+      }
+    >
+      {label}
+    </button>
   );
 }

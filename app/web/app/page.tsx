@@ -5,6 +5,7 @@ import Link from "next/link";
 import { apiGet, type Order, type Shop } from "./lib/api";
 import { useLang } from "./lib/i18n";
 import LangToggle from "./demo/[shopId]/LangToggle";
+import ThemeToggle from "./demo/[shopId]/ThemeToggle";
 
 const pillars = [
   { title: "home.w1", body: "home.w1b" },
@@ -79,7 +80,10 @@ export default function Home() {
         <span className="brand-glow text-lg font-semibold tracking-tight">
           ጋራዥ
         </span>
-        <LangToggle />
+        <div className="flex items-center gap-2">
+          <LangToggle />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 pt-14 pb-24" key={lang}>
